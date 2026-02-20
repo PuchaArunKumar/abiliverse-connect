@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Accessibility } from "lucide-react";
+import { Accessibility, Linkedin, Github, Mail } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -33,7 +33,18 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Legal</h3>
+            <h3 className="mb-3 font-heading text-sm font-semibold text-foreground">Let's Connect</h3>
+            <div className="flex gap-3 mb-4">
+              <a href="https://www.linkedin.com/in/pucha-arun-kumar/" target="_blank" rel="noopener noreferrer" className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="LinkedIn">
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a href="https://github.com/PuchaArunKumar/" target="_blank" rel="noopener noreferrer" className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="GitHub">
+                <Github className="h-4 w-4" />
+              </a>
+              <a href="mailto:puchaarunkumar@gmail.com" className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-primary hover:bg-primary hover:text-primary-foreground transition-colors" aria-label="Email">
+                <Mail className="h-4 w-4" />
+              </a>
+            </div>
             <ul className="space-y-2 text-sm" role="list">
               <li><Link to="/privacy-policy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms-of-service" className="text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link></li>
