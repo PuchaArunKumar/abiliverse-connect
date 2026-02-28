@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Accessibility } from "lucide-react";
+import { Menu, X, Accessibility, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const navLinks = [
   { label: "Feed", href: "/feed" },
@@ -14,6 +16,15 @@ const navLinks = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out successfully");
+    navigate("/");
+    setMobileOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -49,12 +60,23 @@ const Navbar = () => {
         </ul>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/login">Sign In</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link to="/signup">Join Community</Link>
-          </Button>
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-1" /> Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/login">Sign In</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/signup">Join Community</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -95,12 +117,20 @@ const Navbar = () => {
             ))}
           </ul>
           <div className="mt-3 flex flex-col gap-2">
-            <Button variant="outline" asChild>
-              <Link to="/login" onClick={() => setMobileOpen(false)}>Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/signup" onClick={() => setMobileOpen(false)}>Join Community</Link>
-            </Button>
+            {user ? (
+              <Button variant="outline" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-1" /> Sign Out
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>Sign In</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/signup" onClick={() => setMobileOpen(false)}>Join Community</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
