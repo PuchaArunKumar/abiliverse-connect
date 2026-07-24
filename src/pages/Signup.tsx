@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const rawNext = searchParams.get("next");
+  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +30,7 @@ const Signup = () => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: `${window.location.origin}${next}` },
     });
     setLoading(false);
     if (error) {
@@ -71,6 +74,11 @@ const Signup = () => {
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link to="/login" className="font-medium text-primary hover:underline">Sign In</Link>
+          </p>
+          <p className="text-center text-xs text-muted-foreground">
+            <Link to={`/login${rawNext ? `?next=${encodeURIComponent(rawNext)}` : ""}`} className="hover:underline">
+              Continue signing in
+            </Link>
           </p>
         </div>
       </div>
