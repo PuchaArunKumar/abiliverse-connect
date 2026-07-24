@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Accessibility, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import AccessibilityPanel from "@/components/AccessibilityPanel";
 
 const navLinks = [
   { label: "Feed", href: "/feed" },
+  { label: "Jobs", href: "/jobs" },
+  { label: "Learn", href: "/learn" },
+  { label: "Opportunities", href: "/opportunities" },
   { label: "Connect", href: "/connect" },
   { label: "Pitches", href: "/pitches" },
   { label: "AI Companion", href: "/companion" },
-  { label: "About", href: "/about" },
 ];
 
 const Navbar = () => {
@@ -60,6 +63,7 @@ const Navbar = () => {
         </ul>
 
         <div className="hidden items-center gap-3 md:flex">
+          <AccessibilityPanel />
           {user ? (
             <>
               <span className="text-sm text-muted-foreground">{user.email}</span>
@@ -80,15 +84,18 @@ const Navbar = () => {
         </div>
 
         {/* Mobile toggle */}
-        <button
+        <div className="flex items-center gap-2 md:hidden">
+          <AccessibilityPanel />
+          <button
           className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-secondary md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
-        >
+          >
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+          </button>
+        </div>
       </nav>
 
       {/* Mobile menu */}
