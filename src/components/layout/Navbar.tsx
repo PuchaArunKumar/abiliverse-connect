@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Accessibility, LogOut } from "lucide-react";
+import { Menu, X, Accessibility, LogOut, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import AccessibilityPanel from "@/components/AccessibilityPanel";
@@ -67,6 +67,11 @@ const Navbar = () => {
           {user ? (
             <>
               <span className="text-sm text-muted-foreground">{user.email}</span>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/security" aria-label="Account security settings">
+                  <ShieldCheck className="h-4 w-4 mr-1" aria-hidden="true" /> Security
+                </Link>
+              </Button>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-1" /> Sign Out
               </Button>
@@ -125,9 +130,16 @@ const Navbar = () => {
           </ul>
           <div className="mt-3 flex flex-col gap-2">
             {user ? (
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-1" /> Sign Out
-              </Button>
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/security" onClick={() => setMobileOpen(false)}>
+                    <ShieldCheck className="h-4 w-4 mr-1" aria-hidden="true" /> Security
+                  </Link>
+                </Button>
+                <Button variant="outline" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-1" /> Sign Out
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="outline" asChild>
