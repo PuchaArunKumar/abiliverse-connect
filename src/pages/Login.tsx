@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Accessibility, Loader2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
+import TwoFactorChallenge from "@/components/auth/TwoFactorChallenge";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needs2fa, setNeeds2fa] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rawNext = searchParams.get("next");
@@ -21,13 +23,25 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error(error.message);
-    } else {
-      toast.success("Signed in successfully!");
-      navigate(next);
+      return;
     }
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    setLoading(false);
+    if (aal && aal.nextLevel === "aal2" && aal.nextLevel !== aal.currentLevel) {
+      setNeeds2fa(true);
+      return;
+    }
+    toast.success("Signed in successfully!");
+    navigate(next);
+  };
+
+  const handleCancel2fa = async () => {
+    await supabase.auth.signOut();
+    setNeeds2fa(false);
+    setPassword("");
   };
 
   const handleGoogleLogin = async () => {
@@ -42,6 +56,15 @@ const Login = () => {
   return (
     <Layout>
       <div className="flex min-h-[70vh] items-center justify-center px-4">
+        {needs2fa ? (
+          <TwoFactorChallenge
+            onVerified={() => {
+              toast.success("Signed in successfully!");
+              navigate(next);
+            }}
+            onCancel={handleCancel2fa}
+          />
+        ) : (
         <div className="w-full max-w-md space-y-8 rounded-2xl border border-border bg-card p-8 shadow-lg">
           <div className="text-center">
             <Link to="/" className="inline-flex items-center gap-2 font-heading text-2xl font-bold text-foreground">
@@ -84,6 +107,7 @@ const Login = () => {
             <Link to="/signup" className="font-medium text-primary hover:underline">Sign Up</Link>
           </p>
         </div>
+        )}
       </div>
     </Layout>
   );
