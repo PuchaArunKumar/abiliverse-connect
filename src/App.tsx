@@ -8,6 +8,9 @@ import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
+import Problems from "./pages/Problems";
+import ProblemDetail from "./pages/ProblemDetail";
+import ProblemNew from "./pages/ProblemNew";
 import Jobs from "./pages/Jobs";
 import Learn from "./pages/Learn";
 import Opportunities from "./pages/Opportunities";
@@ -46,6 +49,9 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/security" element={<ProtectedRoute><Security /></ProtectedRoute>} />
             <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+            <Route path="/problems" element={<Problems />} />
+            <Route path="/problems/new" element={<ProblemNew />} />
+            <Route path="/problems/:id" element={<ProblemDetail />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/learn" element={<Learn />} />
             <Route path="/opportunities" element={<Opportunities />} />

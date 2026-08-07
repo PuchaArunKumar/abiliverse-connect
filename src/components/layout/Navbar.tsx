@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import AccessibilityPanel from "@/components/AccessibilityPanel";
 
 const navLinks = [
+  { label: "Problems", href: "/problems" },
   { label: "Feed", href: "/feed" },
   { label: "Jobs", href: "/jobs" },
   { label: "Learn", href: "/learn" },
