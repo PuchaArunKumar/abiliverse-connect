@@ -69,7 +69,7 @@ const Login = () => {
           <div className="text-center">
             <Link to="/" className="inline-flex items-center gap-2 font-heading text-2xl font-bold text-foreground">
               <Accessibility className="h-8 w-8 text-primary" />
-              AbilitiVerse
+              Abilitiverse
             </Link>
             <h1 className="mt-4 text-xl font-semibold text-foreground">Welcome Back</h1>
             <p className="mt-1 text-sm text-muted-foreground">Sign in to your account</p>
