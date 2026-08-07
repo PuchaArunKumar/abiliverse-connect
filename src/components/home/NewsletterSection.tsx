@@ -1,15 +1,33 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    toast.success("Thanks for subscribing! We'll keep you posted.");
+    const address = email.trim().toLowerCase();
+    if (!address) return;
+
+    setSaving(true);
+    const { error } = await supabase
+      .from("newsletter_subscribers")
+      .insert({ email: address });
+    setSaving(false);
+
+    // 23505 is a unique violation: this address is already on the list. Report
+    // it as success rather than as an error, so the form does not become a way
+    // to test whether a given address is subscribed.
+    if (error && error.code !== "23505") {
+      toast.error("Could not subscribe right now. Please try again.");
+      return;
+    }
+
+    toast.success("You're subscribed. We'll keep you posted.");
     setEmail("");
   };
 
@@ -41,6 +59,7 @@ const NewsletterSection = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={saving}
               className="min-h-[48px] flex-1 border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50"
               aria-describedby="newsletter-desc"
             />
@@ -51,8 +70,9 @@ const NewsletterSection = () => {
               type="submit"
               variant="secondary"
               className="min-h-[48px] font-semibold"
+              disabled={saving}
             >
-              Subscribe
+              {saving ? "Subscribing..." : "Subscribe"}
             </Button>
           </form>
         </div>

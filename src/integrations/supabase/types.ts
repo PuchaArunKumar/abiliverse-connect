@@ -166,6 +166,24 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       post_comments: {
         Row: {
           body: string
@@ -499,6 +517,15 @@ export type Database = {
       is_moderator: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      public_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          members: number
+          problems: number
+          countries: number
+          opportunities: number
+        }[]
       }
       search_problems: {
         Args: { _query: string; _limit?: number }
