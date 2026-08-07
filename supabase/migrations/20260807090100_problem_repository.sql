@@ -14,6 +14,20 @@ CREATE TYPE public.age_group AS ENUM (
 
 CREATE TYPE public.problem_status AS ENUM ('open', 'in_progress', 'solved', 'archived');
 
+-- array_to_string is STABLE, not IMMUTABLE, because it goes through the element
+-- type's output function. A generated column requires an immutable expression,
+-- so calling it directly fails with "generation expression is not immutable".
+-- text[] -> text is genuinely immutable, so wrapping it is safe.
+CREATE OR REPLACE FUNCTION public.immutable_array_to_string(_arr text[], _sep text)
+RETURNS text
+LANGUAGE sql
+IMMUTABLE
+PARALLEL SAFE
+SET search_path = public
+AS $$
+  SELECT array_to_string(coalesce(_arr, '{}'), _sep);
+$$;
+
 CREATE TABLE public.problems (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -42,7 +56,7 @@ CREATE TABLE public.problems (
   search_vector tsvector GENERATED ALWAYS AS (
     setweight(to_tsvector('english'::regconfig, coalesce(title, '')), 'A') ||
     setweight(to_tsvector('english'::regconfig, coalesce(description, '')), 'B') ||
-    setweight(to_tsvector('english'::regconfig, array_to_string(tags, ' ')), 'C') ||
+    setweight(to_tsvector('english'::regconfig, public.immutable_array_to_string(tags, ' ')), 'C') ||
     setweight(to_tsvector('english'::regconfig, coalesce(category, '')), 'C')
   ) STORED
 );
@@ -243,9 +257,14 @@ CREATE TRIGGER trg_problems_revision
   BEFORE UPDATE ON public.problems
   FOR EACH ROW EXECUTE FUNCTION public.snapshot_problem_revision();
 
+-- Skipped when only a counter moved: a vote or comment is not an edit, and
+-- bumping updated_at on every vote would make "recently updated" meaningless.
 CREATE TRIGGER trg_problems_updated
   BEFORE UPDATE ON public.problems
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+  FOR EACH ROW
+  WHEN (OLD.vote_count IS NOT DISTINCT FROM NEW.vote_count
+        AND OLD.comment_count IS NOT DISTINCT FROM NEW.comment_count)
+  EXECUTE FUNCTION public.update_updated_at_column();
 
 -- INDEXES ---------------------------------------------------------------
 CREATE INDEX idx_problems_search ON public.problems USING GIN (search_vector);
