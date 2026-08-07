@@ -47,10 +47,10 @@ const Signup = () => {
           <div className="text-center">
             <Link to="/" className="inline-flex items-center gap-2 font-heading text-2xl font-bold text-foreground">
               <Accessibility className="h-8 w-8 text-primary" />
-              AbilitiVerse
+              Abilitiverse
             </Link>
             <h1 className="mt-4 text-xl font-semibold text-foreground">Create Account</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Join the AbilitiVerse community</p>
+            <p className="mt-1 text-sm text-muted-foreground">Join the Abilitiverse community</p>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-4">
