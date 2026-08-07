@@ -248,6 +248,190 @@ export type Database = {
         }
         Relationships: []
       }
+      problem_bookmarks: {
+        Row: {
+          created_at: string
+          problem_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          problem_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          problem_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      problem_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          problem_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          problem_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          problem_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      problem_reports: {
+        Row: {
+          created_at: string
+          id: string
+          problem_id: string
+          reason: string
+          resolved: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          problem_id: string
+          reason: string
+          resolved?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          problem_id?: string
+          reason?: string
+          resolved?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      problem_revisions: {
+        Row: {
+          created_at: string
+          description: string
+          editor_id: string | null
+          id: string
+          problem_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          editor_id?: string | null
+          id?: string
+          problem_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          editor_id?: string | null
+          id?: string
+          problem_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      problem_votes: {
+        Row: {
+          created_at: string
+          problem_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          problem_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          problem_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      problems: {
+        Row: {
+          age_groups: Database["public"]["Enums"]["age_group"][]
+          category: string
+          comment_count: number
+          country: string
+          created_at: string
+          description: string
+          disability_types: Database["public"]["Enums"]["disability_type"][]
+          document_urls: string[]
+          existing_solutions: string
+          id: string
+          image_urls: string[]
+          related_research: string[]
+          search_vector: unknown
+          severity: Database["public"]["Enums"]["severity_level"] | null
+          status: Database["public"]["Enums"]["problem_status"]
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+          video_urls: string[]
+          vote_count: number
+        }
+        Insert: {
+          age_groups?: Database["public"]["Enums"]["age_group"][]
+          category?: string
+          comment_count?: number
+          country?: string
+          created_at?: string
+          description: string
+          disability_types?: Database["public"]["Enums"]["disability_type"][]
+          document_urls?: string[]
+          existing_solutions?: string
+          id?: string
+          image_urls?: string[]
+          related_research?: string[]
+          severity?: Database["public"]["Enums"]["severity_level"] | null
+          status?: Database["public"]["Enums"]["problem_status"]
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+          video_urls?: string[]
+          vote_count?: number
+        }
+        Update: {
+          age_groups?: Database["public"]["Enums"]["age_group"][]
+          category?: string
+          comment_count?: number
+          country?: string
+          created_at?: string
+          description?: string
+          disability_types?: Database["public"]["Enums"]["disability_type"][]
+          document_urls?: string[]
+          existing_solutions?: string
+          id?: string
+          image_urls?: string[]
+          related_research?: string[]
+          severity?: Database["public"]["Enums"]["severity_level"] | null
+          status?: Database["public"]["Enums"]["problem_status"]
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_urls?: string[]
+          vote_count?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -278,15 +462,97 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_moderator: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      search_problems: {
+        Args: { _query: string; _limit?: number }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          vote_count: number
+          status: Database["public"]["Enums"]["problem_status"]
+          created_at: string
+          rank: number
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      age_group:
+        | "infant"
+        | "child"
+        | "adolescent"
+        | "adult"
+        | "older_adult"
+        | "all_ages"
+      app_role:
+        | "person_with_disability"
+        | "caregiver"
+        | "parent"
+        | "researcher"
+        | "student"
+        | "developer"
+        | "designer"
+        | "healthcare_professional"
+        | "ngo"
+        | "startup"
+        | "company"
+        | "university"
+        | "government"
+        | "volunteer"
+        | "investor"
+        | "mentor"
+        | "admin"
+        | "moderator"
+      disability_type:
+        | "visual"
+        | "hearing"
+        | "mobility"
+        | "cognitive"
+        | "speech"
+        | "neurological"
+        | "chronic_illness"
+        | "mental_health"
+        | "multiple"
+        | "other"
+      problem_status: "open" | "in_progress" | "solved" | "archived"
+      severity_level: "mild" | "moderate" | "severe" | "profound"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -413,6 +679,49 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      age_group: [
+        "infant",
+        "child",
+        "adolescent",
+        "adult",
+        "older_adult",
+        "all_ages",
+      ],
+      app_role: [
+        "person_with_disability",
+        "caregiver",
+        "parent",
+        "researcher",
+        "student",
+        "developer",
+        "designer",
+        "healthcare_professional",
+        "ngo",
+        "startup",
+        "company",
+        "university",
+        "government",
+        "volunteer",
+        "investor",
+        "mentor",
+        "admin",
+        "moderator",
+      ],
+      disability_type: [
+        "visual",
+        "hearing",
+        "mobility",
+        "cognitive",
+        "speech",
+        "neurological",
+        "chronic_illness",
+        "mental_health",
+        "multiple",
+        "other",
+      ],
+      problem_status: ["open", "in_progress", "solved", "archived"],
+      severity_level: ["mild", "moderate", "severe", "profound"],
+    },
   },
 } as const
