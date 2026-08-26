@@ -5,7 +5,9 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  // supabase/functions/mcp is a generated bundle produced by @lovable.dev/mcp-js,
+  // not hand-written source. Linting it reports the bundler's own output style.
+  { ignores: ["dist", "supabase/functions/mcp/**"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

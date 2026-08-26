@@ -30,7 +30,9 @@ export const AccessibilityProvider = ({ children }: { children: ReactNode }) => 
         setRM(!!s.reduceMotion);
         if (s.fontSize) setFontSize(s.fontSize);
       }
-    } catch {}
+    } catch {
+      // Stored preferences unreadable (private mode, cleared storage): keep defaults.
+    }
   }, []);
 
   useEffect(() => {
