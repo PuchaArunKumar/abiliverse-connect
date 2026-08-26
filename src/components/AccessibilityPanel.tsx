@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Accessibility, Sun, Type, Zap } from "lucide-react";
+import { Accessibility, Link2, RotateCcw, Sun, Type, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription,
@@ -17,7 +17,8 @@ const sizes = [
 
 const AccessibilityPanel = () => {
   const [open, setOpen] = useState(false);
-  const { highContrast, dyslexiaFont, reduceMotion, fontSize, toggle, setFontSize } = useA11y();
+  const { highContrast, dyslexiaFont, reduceMotion, underlineLinks, fontSize, toggle, setFontSize, reset, isDefault } =
+    useA11y();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -70,6 +71,22 @@ const AccessibilityPanel = () => {
             <Switch id="a11y-motion" checked={reduceMotion} onCheckedChange={() => toggle("reduceMotion")} />
           </div>
 
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <Label htmlFor="a11y-underline" className="flex items-center gap-2 font-medium">
+                <Link2 className="h-4 w-4" aria-hidden="true" /> Underline links
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Mark every link with an underline, not colour alone.
+              </p>
+            </div>
+            <Switch
+              id="a11y-underline"
+              checked={underlineLinks}
+              onCheckedChange={() => toggle("underlineLinks")}
+            />
+          </div>
+
           <div>
             <p className="mb-2 font-medium">Text size</p>
             <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Text size">
@@ -86,6 +103,24 @@ const AccessibilityPanel = () => {
                 </Button>
               ))}
             </div>
+          </div>
+
+          <div className="border-t border-border pt-6">
+            <Button
+              variant="outline"
+              onClick={reset}
+              disabled={isDefault}
+              className="min-h-11 w-full"
+            >
+              <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
+              Reset to defaults
+            </Button>
+            {/* aria-live so confirmation reaches a screen reader: the visual
+                cue for a reset is the controls changing, which is invisible
+                to anyone not looking at them. */}
+            <p aria-live="polite" className="sr-only">
+              {isDefault ? "Accessibility settings are at their defaults." : ""}
+            </p>
           </div>
         </div>
       </SheetContent>
