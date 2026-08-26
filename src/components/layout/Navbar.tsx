@@ -13,8 +13,6 @@ const navLinks = [
   { label: "Learn", href: "/learn" },
   { label: "Opportunities", href: "/opportunities" },
   { label: "Connect", href: "/connect" },
-  { label: "Pitches", href: "/pitches" },
-  { label: "AI Companion", href: "/companion" },
 ];
 
 const Navbar = () => {
