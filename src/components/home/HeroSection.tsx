@@ -51,7 +51,7 @@ const HeroSection = () => {
             <Button
               size="lg"
               variant="outline"
-              className="min-h-[48px] min-w-[180px] border-primary-foreground/30 text-base font-semibold text-primary-foreground hover:bg-primary-foreground/10"
+              className="min-h-[48px] min-w-[180px] border-primary-foreground/40 bg-transparent text-base font-semibold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               asChild
             >
               <Link to="/pitches">Explore Projects</Link>
