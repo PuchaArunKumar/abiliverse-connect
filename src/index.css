@@ -165,3 +165,13 @@ html[data-font-size="sm"] { font-size: 14px; }
 html[data-font-size="md"] { font-size: 16px; }
 html[data-font-size="lg"] { font-size: 18px; }
 html[data-font-size="xl"] { font-size: 20px; }
+
+/* Underline links: colour alone is not a reliable signal for anyone with a
+   colour vision deficiency, so this marks every in-content link with a border
+   that survives contrast changes. Nav and buttons are excluded — they are
+   already identifiable by position and shape. */
+.a11y-underline-links main a:not([role="button"]),
+.a11y-underline-links footer a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

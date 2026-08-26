@@ -1,24 +1,37 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type FontSize = "sm" | "md" | "lg" | "xl";
+type Toggleable = "highContrast" | "dyslexiaFont" | "reduceMotion" | "underlineLinks";
 
 interface A11yState {
   highContrast: boolean;
   dyslexiaFont: boolean;
   reduceMotion: boolean;
+  underlineLinks: boolean;
   fontSize: FontSize;
-  toggle: (k: "highContrast" | "dyslexiaFont" | "reduceMotion") => void;
+  toggle: (k: Toggleable) => void;
   setFontSize: (s: FontSize) => void;
+  reset: () => void;
+  isDefault: boolean;
 }
 
 const Ctx = createContext<A11yState | null>(null);
 const KEY = "abilitiverse-a11y";
 
+const DEFAULTS = {
+  highContrast: false,
+  dyslexiaFont: false,
+  reduceMotion: false,
+  underlineLinks: false,
+  fontSize: "md" as FontSize,
+};
+
 export const AccessibilityProvider = ({ children }: { children: ReactNode }) => {
-  const [highContrast, setHC] = useState(false);
-  const [dyslexiaFont, setDF] = useState(false);
-  const [reduceMotion, setRM] = useState(false);
-  const [fontSize, setFontSize] = useState<FontSize>("md");
+  const [highContrast, setHC] = useState(DEFAULTS.highContrast);
+  const [dyslexiaFont, setDF] = useState(DEFAULTS.dyslexiaFont);
+  const [reduceMotion, setRM] = useState(DEFAULTS.reduceMotion);
+  const [underlineLinks, setUL] = useState(DEFAULTS.underlineLinks);
+  const [fontSize, setFontSize] = useState<FontSize>(DEFAULTS.fontSize);
 
   useEffect(() => {
     try {
@@ -28,6 +41,7 @@ export const AccessibilityProvider = ({ children }: { children: ReactNode }) => 
         setHC(!!s.highContrast);
         setDF(!!s.dyslexiaFont);
         setRM(!!s.reduceMotion);
+        setUL(!!s.underlineLinks);
         if (s.fontSize) setFontSize(s.fontSize);
       }
     } catch {
@@ -40,21 +54,63 @@ export const AccessibilityProvider = ({ children }: { children: ReactNode }) => 
     root.classList.toggle("a11y-contrast", highContrast);
     root.classList.toggle("a11y-dyslexia", dyslexiaFont);
     root.classList.toggle("a11y-reduce-motion", reduceMotion);
+    root.classList.toggle("a11y-underline-links", underlineLinks);
     root.dataset.fontSize = fontSize;
-    localStorage.setItem(
-      KEY,
-      JSON.stringify({ highContrast, dyslexiaFont, reduceMotion, fontSize })
-    );
-  }, [highContrast, dyslexiaFont, reduceMotion, fontSize]);
 
-  const toggle = (k: "highContrast" | "dyslexiaFont" | "reduceMotion") => {
+    try {
+      localStorage.setItem(
+        KEY,
+        JSON.stringify({
+          highContrast,
+          dyslexiaFont,
+          reduceMotion,
+          underlineLinks,
+          fontSize,
+        }),
+      );
+    } catch {
+      // setItem throws in private mode and when storage is full or blocked.
+      // The preference still applies to this session; only persistence is lost,
+      // and losing that must not take the settings panel down with it.
+    }
+  }, [highContrast, dyslexiaFont, reduceMotion, underlineLinks, fontSize]);
+
+  const toggle = (k: Toggleable) => {
     if (k === "highContrast") setHC((v) => !v);
     if (k === "dyslexiaFont") setDF((v) => !v);
     if (k === "reduceMotion") setRM((v) => !v);
+    if (k === "underlineLinks") setUL((v) => !v);
   };
 
+  const reset = () => {
+    setHC(DEFAULTS.highContrast);
+    setDF(DEFAULTS.dyslexiaFont);
+    setRM(DEFAULTS.reduceMotion);
+    setUL(DEFAULTS.underlineLinks);
+    setFontSize(DEFAULTS.fontSize);
+  };
+
+  const isDefault =
+    highContrast === DEFAULTS.highContrast &&
+    dyslexiaFont === DEFAULTS.dyslexiaFont &&
+    reduceMotion === DEFAULTS.reduceMotion &&
+    underlineLinks === DEFAULTS.underlineLinks &&
+    fontSize === DEFAULTS.fontSize;
+
   return (
-    <Ctx.Provider value={{ highContrast, dyslexiaFont, reduceMotion, fontSize, toggle, setFontSize }}>
+    <Ctx.Provider
+      value={{
+        highContrast,
+        dyslexiaFont,
+        reduceMotion,
+        underlineLinks,
+        fontSize,
+        toggle,
+        setFontSize,
+        reset,
+        isDefault,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );

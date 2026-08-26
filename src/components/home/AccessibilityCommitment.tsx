@@ -52,7 +52,7 @@ const AccessibilityCommitment = () => {
             control in the toolbar to change any of them.
           </p>
           <Link
-            to="/accessibility"
+            to="/accessibility-statement"
             className="mt-4 inline-block font-semibold text-primary hover:underline focus-visible:underline"
           >
             Read the accessibility statement
