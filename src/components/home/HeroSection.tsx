@@ -1,62 +1,112 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users } from "lucide-react";
-import heroImage from "@/assets/hero-image.jpg";
+import { ArrowRight, Check } from "lucide-react";
+
+/**
+ * Compact, left-aligned, and mostly white.
+ *
+ * The previous hero was a full-bleed saturated slab with centred marketing
+ * copy — the visual language of a product launch page. A professional network
+ * reads as credible by *restraining* colour to controls and accents and
+ * leading with information rather than a pitch.
+ */
+
+const assurances = [
+  "Free to join",
+  "Built to WCAG 2.1 AA",
+  "Open to everyone",
+];
 
 const HeroSection = () => {
   return (
     <section
-      className="relative overflow-hidden bg-primary py-20 lg:py-28"
+      className="border-b border-border bg-background"
       aria-labelledby="hero-heading"
     >
-      {/* Background image overlay */}
-      <div className="absolute inset-0">
-        <img
-          src={heroImage}
-          alt=""
-          className="h-full w-full object-cover opacity-15"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/80" />
-      </div>
+      <div className="container grid gap-10 py-14 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-16 lg:py-20">
+        <div>
+          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-primary">
+            The assistive technology community
+          </p>
 
-      <div className="container relative z-10">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-1.5 text-sm font-medium text-primary-foreground">
-            <Users className="h-4 w-4" aria-hidden="true" />
-            Where assistive tech finds its people
-          </span>
           <h1
             id="hero-heading"
-            className="mb-6 font-heading text-4xl font-extrabold leading-tight tracking-tight text-primary-foreground md:text-5xl lg:text-6xl text-balance"
+            className="max-w-2xl font-heading text-3xl font-bold leading-tight tracking-tight text-foreground md:text-4xl lg:text-[2.75rem]"
           >
-            Empowering Innovation in Assistive Technology
+            Building a more accessible future, together
           </h1>
-          <p className="mb-8 text-lg leading-relaxed text-primary-foreground/85 md:text-xl">
-            Abilitiverse connects developers, entrepreneurs, investors, mentors, and end users
-            to turn accessibility ideas into real-world impact.
+
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            Document the problems disabled people actually face, find the people
+            solving them, and build on work that already exists instead of
+            starting over.
           </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button
-              size="lg"
-              variant="secondary"
-              className="min-h-[48px] min-w-[180px] text-base font-semibold"
-              asChild
-            >
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg" className="min-h-12 text-base font-semibold">
               <Link to="/signup">
-                Join the Community
+                Join Abilitiverse
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
             <Button
+              asChild
               size="lg"
               variant="outline"
-              className="min-h-[48px] min-w-[180px] border-primary-foreground/40 bg-transparent text-base font-semibold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-              asChild
+              className="min-h-12 text-base font-semibold"
             >
-              <Link to="/pitches">Explore Projects</Link>
+              <Link to="/problems">Browse the community</Link>
             </Button>
           </div>
+
+          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2" role="list">
+            {assurances.map((item) => (
+              <li
+                key={item}
+                className="flex items-center gap-2 text-sm text-muted-foreground"
+              >
+                <Check
+                  className="h-4 w-4 shrink-0 text-primary"
+                  aria-hidden="true"
+                />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* The ecosystem this platform connects. Text, not decoration: a
+            screen reader gets the same list a sighted reader sees. */}
+        <div className="rounded-lg border border-border bg-card p-6 lg:p-8">
+          <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            One ecosystem
+          </h2>
+          <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3" role="list">
+            {[
+              "People with disabilities",
+              "Caregivers",
+              "Developers",
+              "Researchers",
+              "Designers",
+              "Clinicians",
+              "Startups",
+              "NGOs",
+              "Universities",
+              "Investors",
+            ].map((role) => (
+              <li key={role} className="flex items-start gap-2 text-sm text-foreground">
+                <span
+                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                  aria-hidden="true"
+                />
+                {role}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground">
+            Nothing here is built <em>for</em> disabled people without them.
+            Problems are documented by the people living them.
+          </p>
         </div>
       </div>
     </section>

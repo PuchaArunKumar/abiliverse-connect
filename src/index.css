@@ -1,6 +1,6 @@
 /* Must stay first: CSS requires @import before any other statement, and when it
    followed the @tailwind directives the font never loaded. */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -36,7 +36,7 @@
     --input: 200 15% 88%;
     --ring: 174 62% 28%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --sidebar-background: 174 30% 97%;
     --sidebar-foreground: 200 25% 10%;
@@ -94,7 +94,9 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* Atkinson Hyperlegible: designed by the Braille Institute with
+       disambiguated letterforms for low-vision readers. */
+    font-family: 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -8,20 +8,20 @@ interface Stats {
   opportunities: number;
 }
 
+// Only the figures the platform directory does not already report per-section,
+// so the same number is never printed twice on one page.
 const LABELS: { key: keyof Stats; label: string }[] = [
-  { key: "members", label: "Community members" },
-  { key: "problems", label: "Problems documented" },
-  { key: "countries", label: "Countries represented" },
-  { key: "opportunities", label: "Opportunities shared" },
+  { key: "members", label: "members" },
+  { key: "countries", label: "countries represented" },
 ];
 
 /**
  * Real counts, read from the database.
  *
  * These were previously hard-coded ("2,400+ community members", "1M+ lives
- * impacted") on a live public site. The section now renders nothing until
- * there is something true to report, which is the correct state for a platform
- * that has not launched: an empty stats block is honest, an invented one is not.
+ * impacted"). The section now renders nothing until there is something true to
+ * report, which is the correct state for a platform that has not launched: an
+ * empty stats bar is honest, an invented one is not.
  */
 const StatsSection = () => {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -41,28 +41,19 @@ const StatsSection = () => {
   if (shown.length === 0) return null;
 
   return (
-    <section className="bg-secondary py-16" aria-labelledby="stats-heading">
-      <div className="container">
+    <section className="border-b border-border bg-card" aria-labelledby="stats-heading">
+      <div className="container flex flex-wrap items-center gap-x-10 gap-y-3 py-5">
         <h2 id="stats-heading" className="sr-only">
-          Our impact in numbers
+          Community in numbers
         </h2>
-        <div
-          className="grid gap-8"
-          style={{
-            gridTemplateColumns: `repeat(auto-fit, minmax(10rem, 1fr))`,
-          }}
-        >
-          {shown.map(({ key, label }) => (
-            <div key={key} className="text-center">
-              <p className="font-heading text-3xl font-extrabold text-primary md:text-4xl">
-                {stats[key].toLocaleString()}
-              </p>
-              <p className="mt-1 text-sm font-medium text-muted-foreground">
-                {label}
-              </p>
-            </div>
-          ))}
-        </div>
+        {shown.map(({ key, label }) => (
+          <p key={key} className="text-sm text-muted-foreground">
+            <span className="font-heading text-lg font-bold text-foreground">
+              {stats[key].toLocaleString()}
+            </span>{" "}
+            {label}
+          </p>
+        ))}
       </div>
     </section>
   );

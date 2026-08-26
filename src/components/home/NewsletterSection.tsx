@@ -32,50 +32,51 @@ const NewsletterSection = () => {
   };
 
   return (
-    <section className="bg-primary py-16" aria-labelledby="newsletter-heading">
-      <div className="container">
-        <div className="mx-auto max-w-xl text-center">
+    <section className="bg-muted/40 py-14" aria-labelledby="newsletter-heading">
+      <div className="container grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16">
+        <div>
           <h2
             id="newsletter-heading"
-            className="mb-3 font-heading text-2xl font-bold text-primary-foreground md:text-3xl"
+            className="font-heading text-2xl font-bold tracking-tight text-foreground"
           >
             Stay in the loop
           </h2>
-          <p className="mb-6 text-primary-foreground/80">
-            Get updates on new projects, events, and community highlights.
+          <p className="mt-2 text-muted-foreground">
+            Occasional updates on new problems, research, and opportunities
+            across the accessibility field. No more than monthly.
           </p>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-3 sm:flex-row"
-            aria-label="Newsletter signup"
-          >
-            <label htmlFor="newsletter-email" className="sr-only">
-              Email address
-            </label>
-            <Input
-              id="newsletter-email"
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={saving}
-              className="min-h-[48px] flex-1 border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50"
-              aria-describedby="newsletter-desc"
-            />
-            <span id="newsletter-desc" className="sr-only">
-              Enter your email to subscribe to our newsletter
-            </span>
-            <Button
-              type="submit"
-              variant="secondary"
-              className="min-h-[48px] font-semibold"
-              disabled={saving}
-            >
-              {saving ? "Subscribing..." : "Subscribe"}
-            </Button>
-          </form>
         </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3 sm:flex-row"
+          aria-label="Newsletter signup"
+        >
+          <label htmlFor="newsletter-email" className="sr-only">
+            Email address
+          </label>
+          <Input
+            id="newsletter-email"
+            type="email"
+            placeholder="your@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={saving}
+            className="min-h-12 flex-1 bg-background"
+            aria-describedby="newsletter-desc"
+          />
+          <span id="newsletter-desc" className="sr-only">
+            Enter your email to subscribe to our newsletter
+          </span>
+          <Button
+            type="submit"
+            className="min-h-12 font-semibold"
+            disabled={saving}
+          >
+            {saving ? "Subscribing..." : "Subscribe"}
+          </Button>
+        </form>
       </div>
     </section>
   );
