@@ -9,7 +9,10 @@ import { Heart, MessageCircle, Loader2, Trash2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
-interface Profile { display_name: string; avatar_url: string }
+interface Profile { display_name: string | null; avatar_url: string | null }
+type ProfileRow = { user_id: string; display_name: string | null; avatar_url: string | null };
+type LikeRow = { post_id: string; user_id: string };
+type CommentCountRow = { post_id: string };
 interface Post {
   id: string;
   user_id: string;
@@ -44,20 +47,20 @@ const Feed = () => {
     const [profilesRes, likesRes, commentsCountRes] = await Promise.all([
       userIds.length
         ? supabase.from("profiles").select("user_id,display_name,avatar_url").in("user_id", userIds)
-        : Promise.resolve({ data: [] as any[] }),
-      ids.length ? supabase.from("post_likes").select("post_id,user_id").in("post_id", ids) : Promise.resolve({ data: [] as any[] }),
-      ids.length ? supabase.from("post_comments").select("post_id").in("post_id", ids) : Promise.resolve({ data: [] as any[] }),
+        : Promise.resolve({ data: [] as ProfileRow[] }),
+      ids.length ? supabase.from("post_likes").select("post_id,user_id").in("post_id", ids) : Promise.resolve({ data: [] as LikeRow[] }),
+      ids.length ? supabase.from("post_comments").select("post_id").in("post_id", ids) : Promise.resolve({ data: [] as CommentCountRow[] }),
     ]);
     const profileMap = new Map<string, Profile>();
-    (profilesRes.data ?? []).forEach((p: any) => profileMap.set(p.user_id, { display_name: p.display_name, avatar_url: p.avatar_url }));
+    (profilesRes.data ?? []).forEach((p) => profileMap.set(p.user_id, { display_name: p.display_name, avatar_url: p.avatar_url }));
     const likesByPost = new Map<string, string[]>();
-    (likesRes.data ?? []).forEach((l: any) => {
+    (likesRes.data ?? []).forEach((l) => {
       const arr = likesByPost.get(l.post_id) ?? [];
       arr.push(l.user_id);
       likesByPost.set(l.post_id, arr);
     });
     const commentsByPost = new Map<string, number>();
-    (commentsCountRes.data ?? []).forEach((c: any) => {
+    (commentsCountRes.data ?? []).forEach((c) => {
       commentsByPost.set(c.post_id, (commentsByPost.get(c.post_id) ?? 0) + 1);
     });
 
@@ -110,13 +113,13 @@ const Feed = () => {
       return;
     }
     const { data } = await supabase.from("post_comments").select("*").eq("post_id", postId).order("created_at");
-    const userIds = Array.from(new Set((data ?? []).map((c: any) => c.user_id)));
-    let profileMap = new Map<string, Profile>();
+    const userIds = Array.from(new Set((data ?? []).map((c) => c.user_id)));
+    const profileMap = new Map<string, Profile>();
     if (userIds.length) {
       const { data: pr } = await supabase.from("profiles").select("user_id,display_name,avatar_url").in("user_id", userIds);
-      (pr ?? []).forEach((p: any) => profileMap.set(p.user_id, { display_name: p.display_name, avatar_url: p.avatar_url }));
+      (pr ?? []).forEach((p) => profileMap.set(p.user_id, { display_name: p.display_name, avatar_url: p.avatar_url }));
     }
-    setOpenComments((s) => ({ ...s, [postId]: (data ?? []).map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })) }));
+    setOpenComments((s) => ({ ...s, [postId]: (data ?? []).map((c) => ({ ...c, profile: profileMap.get(c.user_id) })) }));
   };
 
   const submitComment = async (postId: string) => {

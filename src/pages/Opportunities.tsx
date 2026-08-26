@@ -103,7 +103,7 @@ const Opportunities = () => {
           )}
         </div>
 
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="mb-6">
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as "all" | Kind)} className="mb-6">
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="event">Events</TabsTrigger>
