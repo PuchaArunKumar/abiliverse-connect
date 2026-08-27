@@ -25,7 +25,7 @@ const HeroSection = () => {
     >
       <div className="container grid gap-10 py-14 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-16 lg:py-20">
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-primary">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-action">
             The assistive technology community
           </p>
 
@@ -66,7 +66,7 @@ const HeroSection = () => {
                 className="flex items-center gap-2 text-sm text-muted-foreground"
               >
                 <Check
-                  className="h-4 w-4 shrink-0 text-primary"
+                  className="h-4 w-4 shrink-0 text-action"
                   aria-hidden="true"
                 />
                 {item}
@@ -96,7 +96,7 @@ const HeroSection = () => {
             ].map((role) => (
               <li key={role} className="flex items-start gap-2 text-sm text-foreground">
                 <span
-                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-action"
                   aria-hidden="true"
                 />
                 {role}

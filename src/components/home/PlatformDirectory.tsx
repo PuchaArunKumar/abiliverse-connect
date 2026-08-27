@@ -130,7 +130,7 @@ const PlatformDirectory = () => {
                       {d.name}
                     </h3>
                     {count !== undefined && count > 0 && (
-                      <span className="shrink-0 text-sm font-semibold text-primary">
+                      <span className="shrink-0 text-sm font-semibold text-action">
                         {count.toLocaleString()}{" "}
                         <span className="font-normal text-muted-foreground">
                           {d.unit}
@@ -141,7 +141,7 @@ const PlatformDirectory = () => {
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                     {d.description}
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-action">
                     Open
                     <ArrowRight
                       className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
