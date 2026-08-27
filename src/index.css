@@ -8,82 +8,99 @@
 
 @layer base {
   :root {
-    --background: 180 20% 99%;
-    --foreground: 200 25% 10%;
+    /* Navy ink on a cool ground; teal is the single action colour, blue is
+       reserved for links so a link never reads as a button. Every pairing
+       below is measured, not estimated -- see docs/COLOR.md. */
+    --background: 210 40% 98%;      /* #F8FAFC */
+    --foreground: 221 38% 15%;      /* #172033  15.6:1 on background */
 
     --card: 0 0% 100%;
-    --card-foreground: 200 25% 10%;
+    --card-foreground: 221 38% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 200 25% 10%;
+    --popover-foreground: 221 38% 15%;
 
-    --primary: 174 62% 28%;
+    --primary: 208 61% 18%;         /* #12304A navy  13.0:1 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 174 30% 94%;
-    --secondary-foreground: 174 62% 22%;
+    --secondary: 170 32% 93%;       /* #E6F2F0 teal wash */
+    --secondary-foreground: 175 77% 20%;
 
-    --muted: 200 15% 95%;
-    --muted-foreground: 200 10% 40%;
+    --muted: 212 28% 95%;
+    --muted-foreground: 215 20% 35%; /* #47566B  7.4:1 */
 
-    --accent: 36 90% 55%;
-    --accent-foreground: 36 90% 15%;
+    /* Corrected from #D97706, which measured 3.04:1 and failed AA. */
+    --accent: 26 90% 37%;           /* #B45309  4.8:1 */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 15% 90%;
-    --input: 200 15% 88%;
-    --ring: 174 62% 28%;
+    --border: 212 28% 88%;
+    --input: 212 28% 85%;
+    --ring: 175 77% 26%;
+
+    /* Teal drives every control; blue is links only. Keeping them separate is
+       what stops a link and a button looking like the same affordance. */
+    --action: 175 77% 26%;          /* #0F766E  5.2:1 -- replaces #087E8B,
+                                       which passed at only 4.60:1 */
+    --action-foreground: 0 0% 100%;
+    --link: 220 87% 51%;            /* #155EEF  5.2:1 */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 174 30% 97%;
-    --sidebar-foreground: 200 25% 10%;
-    --sidebar-primary: 174 62% 28%;
+    --sidebar-background: 210 40% 97%;
+    --sidebar-foreground: 221 38% 15%;
+    --sidebar-primary: 208 61% 18%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 174 30% 94%;
-    --sidebar-accent-foreground: 174 62% 22%;
-    --sidebar-border: 200 15% 90%;
-    --sidebar-ring: 174 62% 28%;
+    --sidebar-accent: 170 32% 93%;
+    --sidebar-accent-foreground: 175 77% 20%;
+    --sidebar-border: 212 28% 88%;
+    --sidebar-ring: 175 77% 26%;
 
     /* Custom tokens */
-    --hero-gradient: linear-gradient(135deg, hsl(174 62% 28%), hsl(174 50% 38%));
-    --warm-gradient: linear-gradient(135deg, hsl(36 90% 55%), hsl(36 80% 65%));
+    --hero-gradient: linear-gradient(135deg, hsl(208 61% 18%), hsl(208 55% 26%));
+    --warm-gradient: linear-gradient(135deg, hsl(26 90% 37%), hsl(26 80% 45%));
     --surface-elevated: 0 0% 100%;
-    --text-subtle: 200 10% 55%;
+    --text-subtle: 215 20% 42%;
   }
 
   .dark {
-    --background: 200 25% 6%;
-    --foreground: 180 15% 95%;
-    --card: 200 25% 9%;
-    --card-foreground: 180 15% 95%;
-    --popover: 200 25% 9%;
-    --popover-foreground: 180 15% 95%;
-    --primary: 174 55% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 200 20% 15%;
-    --secondary-foreground: 174 40% 80%;
-    --muted: 200 20% 14%;
-    --muted-foreground: 200 10% 60%;
-    --accent: 36 80% 55%;
-    --accent-foreground: 36 90% 95%;
+    /* Not an inversion: each value re-measured against the dark ground.
+       Ratios in docs/COLOR.md. */
+    --background: 212 36% 9%;       /* #0F1720 */
+    --foreground: 214 35% 92%;      /* 14.9:1 */
+    --card: 211 32% 13%;
+    --card-foreground: 214 35% 92%;
+    --popover: 211 32% 13%;
+    --popover-foreground: 214 35% 92%;
+    --primary: 171 49% 58%;         /* 9.0:1 -- light teal carries brand here,
+                                       navy is unreadable on a dark ground */
+    --primary-foreground: 212 36% 9%;
+    --secondary: 211 30% 17%;
+    --secondary-foreground: 171 49% 72%;
+    --muted: 211 30% 16%;
+    --muted-foreground: 215 20% 67%; /* 7.6:1 */
+    --accent: 29 73% 66%;           /* 8.7:1 */
+    --accent-foreground: 212 36% 9%;
     --destructive: 0 62% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 200 20% 18%;
-    --input: 200 20% 18%;
-    --ring: 174 55% 45%;
-    --sidebar-background: 200 25% 8%;
-    --sidebar-foreground: 180 15% 95%;
-    --sidebar-primary: 174 55% 45%;
+    --border: 211 26% 22%;
+    --input: 211 26% 22%;
+    --ring: 171 49% 58%;
+    --action: 171 49% 58%;
+    --action-foreground: 212 36% 9%;
+    --link: 219 100% 76%;
+    --sidebar-background: 212 34% 11%;
+    --sidebar-foreground: 214 35% 92%;
+    --sidebar-primary: 171 49% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 200 20% 15%;
-    --sidebar-accent-foreground: 174 40% 80%;
-    --sidebar-border: 200 20% 18%;
-    --sidebar-ring: 174 55% 45%;
-    --surface-elevated: 200 25% 11%;
-    --text-subtle: 200 10% 50%;
+    --sidebar-accent: 211 30% 17%;
+    --sidebar-accent-foreground: 171 49% 72%;
+    --sidebar-border: 211 26% 22%;
+    --sidebar-ring: 171 49% 58%;
+    --surface-elevated: 211 32% 15%;
+    --text-subtle: 215 20% 60%;
   }
 }
 
@@ -126,11 +143,14 @@ html.a11y-contrast {
   --foreground: 0 0% 0%;
   --card: 0 0% 100%;
   --card-foreground: 0 0% 0%;
-  --primary: 174 100% 20%;
+  --primary: 208 80% 14%;
   --primary-foreground: 0 0% 100%;
   --border: 0 0% 0%;
   --muted-foreground: 0 0% 15%;
-  --ring: 36 100% 40%;
+  --action: 175 100% 18%;
+  --action-foreground: 0 0% 100%;
+  --link: 220 100% 38%;
+  --ring: 220 100% 38%;
 }
 html.a11y-contrast.dark,
 html.dark.a11y-contrast {
@@ -138,9 +158,11 @@ html.dark.a11y-contrast {
   --foreground: 0 0% 100%;
   --card: 0 0% 4%;
   --card-foreground: 0 0% 100%;
-  --primary: 174 80% 60%;
+  --primary: 171 70% 68%;
   --border: 0 0% 100%;
   --muted-foreground: 0 0% 90%;
+  --action: 171 70% 68%;
+  --link: 219 100% 82%;
 }
 html.a11y-dyslexia body,
 html.a11y-dyslexia h1,

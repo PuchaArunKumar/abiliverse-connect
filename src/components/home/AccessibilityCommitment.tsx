@@ -53,7 +53,7 @@ const AccessibilityCommitment = () => {
           </p>
           <Link
             to="/accessibility-statement"
-            className="mt-4 inline-block font-semibold text-primary hover:underline focus-visible:underline"
+            className="mt-4 inline-block font-semibold text-link hover:underline focus-visible:underline"
           >
             Read the accessibility statement
           </Link>
