@@ -1,61 +1,82 @@
 # Colour system
 
+Corporate navy: one hue family. Navy carries the brand and filled buttons, a
+single blue marks interactive text and icons, and everything else is slate.
+There is no second brand colour competing for attention — that restraint is
+most of what makes the interface read as professional.
+
 Every value here was measured against the WCAG 2.1 relative luminance formula
-before being adopted. Two of the originally proposed values did not survive
-that check, and are recorded below so they are not reintroduced.
+before being adopted. Hex values are the rendered result of the HSL tokens in
+`src/index.css`.
 
 ## Light
 
 | Token | Hex | Role | Contrast | Level |
 | --- | --- | --- | --- | --- |
-| `--foreground` | `#172033` | Body text | 15.55:1 on ground | AAA |
-| `--primary` | `#12304A` | Brand, headings | 12.97:1 on ground | AAA |
-| `--primary` on white text | `#12304A` | Primary button | 13.57:1 | AAA |
-| `--action` | `#0F766E` | Buttons, active nav, focus | 5.23:1 on ground | AA |
-| `--link` | `#155EEF` | Links and citations | 5.17:1 on ground | AA |
-| `--accent` | `#B45309` | Status and deadline chips | 4.80:1 on ground | AA |
-| `--muted-foreground` | `#47566B` | Secondary text | 7.42:1 on ground | AAA |
+| `--foreground` | `#0F1729` | Body text | 17.08:1 on ground | AAA |
+| `--primary` | `#0B2647` | Brand, filled buttons | 14.52:1 on ground | AAA |
+| `--primary` with white text | `#0B2647` | Primary button | 15.19:1 | AAA |
+| `--action` / `--link` | `#1147BB` | Links, "Open →", eyebrows, icons | 7.59:1 on ground | AAA |
+| `--muted-foreground` | `#48566A` | Secondary text | 7.13:1 on ground | AAA |
+| `--secondary` | `#ECF1F9` | Icon tiles, badges | navy text 13.39:1 | AAA |
+| `--accent` | `#E6ECF4` | Hover and selected surfaces | navy text 12.78:1 | AAA |
+| `--destructive` | `#B81E1E` | Errors, delete | white text 6.48:1 | AA |
 | `--background` | `#F8FAFC` | Page ground | — | — |
 
 ## Dark
 
 Re-measured against the dark ground rather than inverted. Navy is unreadable on
-a dark background, so light teal carries the brand there.
+a dark background, so a light blue carries the brand there.
 
-| Token | Hex | Contrast on `#0F1720` | Level |
+| Token | Hex | Contrast on `#090E1A` | Level |
 | --- | --- | --- | --- |
-| `--foreground` | `#E4EAF2` | 14.91:1 | AAA |
-| `--primary` / `--action` | `#5EC8B8` | 8.96:1 | AAA |
-| `--link` | `#86B0FF` | 8.31:1 | AAA |
-| `--accent` | `#E8A76B` | 8.74:1 | AAA |
-| `--muted-foreground` | `#9BA9BC` | 7.56:1 | AAA |
+| `--foreground` | `#E1E7EF` | 15.49:1 | AAA |
+| `--primary` / `--action` / `--link` | `#8BB9F9` | 9.55:1 | AAA |
+| `--muted-foreground` | `#9DABBE` | 8.26:1 | AAA |
+| `--accent` (hover surface) | `#222C3F` | text on it 11.25:1 | AAA |
 
-## Two values that were rejected
+## High contrast mode
 
-**`#D97706` as the warm accent — failed.** 3.04:1 as text on the ground and
-3.19:1 as a button with white text, both under the 4.5:1 minimum. Replaced with
-`#B45309` at 4.80:1, which still reads as amber rather than brown.
+Overrides the tokens above, so it is measured separately.
 
-**`#087E8B` as the action colour — too tight.** It passed, but at 4.60:1 it sat
-0.1 above the threshold, close enough that any later lightening would drop it
-below. Replaced with `#0F766E` at 5.23:1, which is also nearer the previous
-brand teal so no brand continuity is lost.
+| Mode | `--primary` | `--action` / `--link` |
+| --- | --- | --- |
+| Light, on white | `#031C3A` 17.06:1 | `#0031A3` 10.67:1 |
+| Dark, on black | `#A3C9FF` 12.36:1 | `#A3C9FF` 12.36:1 |
+
+## Decisions, and what they replaced
+
+**`--accent` is a surface, not a colour.** shadcn/ui paints hover, focus and
+selected states with `bg-accent text-accent-foreground` — menu items, outline
+and ghost buttons, select options, calendar days. It was amber `#B45309` with
+white text, so every one of those turned orange on hover; in dark mode the same
+token put light text on light amber at 1.72:1. It is now a faint slate-blue
+with navy text. Nothing in the app used `accent` as a status colour.
+
+**Teal and amber are gone.** The previous palette used navy, teal, blue and
+amber at once. Four hues read as a consumer app; one reads as an institution.
+
+**`--action` and `--link` are the same blue.** They were deliberately different
+hues so a link would not read as a button. Shape does that job better: buttons
+are filled navy blocks, links are blue text. Hue alone is also not a reliable
+signal for anyone with a colour vision deficiency. The tokens stay separate so
+they can diverge again without touching components.
+
+**Dark-mode sidebar fix.** `--sidebar-primary-foreground` was white on light
+teal, 2.01:1. It now uses the dark ground, 9.55:1.
 
 ## Rules
 
-- **`--action` and `--link` are deliberately different.** Teal drives controls,
-  blue marks links. Collapsing them makes a link and a button read as the same
-  affordance.
-- **`--accent` never carries body text.** It is for chips and status marks,
-  where it sits on a tinted background at larger effective weight.
 - **Colour never carries meaning alone.** Status is a word plus a glyph, with
   colour reinforcing it — so the interface survives greyscale and colour vision
   deficiency.
-- **High contrast mode overrides these tokens**, so it needs its own check
-  whenever the palette changes. It is not derived from the values above.
+- **No raw colours in components.** Use the tokens (`text-action`,
+  `bg-secondary`, …). A hard-coded `text-teal-700` bypasses dark mode, high
+  contrast mode, and this audit.
+- **High contrast mode needs its own check** whenever the palette changes. It
+  is not derived from the values above.
 
 ## Re-running the audit
 
-Contrast is checked by hand rather than by a linter today. When changing any
-token, recompute the affected pairings before committing — a value that looks
-fine can be a point below the line.
+When changing any token, recompute every pairing above before committing — a
+value that looks fine can be a point below the line.
