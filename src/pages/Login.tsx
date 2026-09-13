@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Accessibility, Loader2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import TwoFactorChallenge from "@/components/auth/TwoFactorChallenge";
+import { appUrl } from "@/lib/url";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -47,7 +48,7 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     setLoading(true);
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${next}`,
+      redirect_uri: appUrl(next),
     });
     setLoading(false);
     if (error) toast.error(error.message);

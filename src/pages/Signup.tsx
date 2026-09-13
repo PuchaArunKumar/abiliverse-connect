@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Accessibility, Loader2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
+import { appUrl } from "@/lib/url";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -30,7 +31,7 @@ const Signup = () => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}${next}` },
+      options: { emailRedirectTo: appUrl(next) },
     });
     setLoading(false);
     if (error) {

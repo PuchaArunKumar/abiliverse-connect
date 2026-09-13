@@ -4,6 +4,8 @@ Abilitiverse is a community platform for the assistive technology ecosystem — 
 developers, entrepreneurs, investors, mentors, and end users to accelerate innovation in
 accessibility.
 
+**Live site**: https://puchaarunkumar.github.io/abiliverse-connect/
+
 **Lovable project**: https://lovable.dev/projects/f89616eb-fa24-4613-8fa4-f68d85fc755f
 
 ## Features
@@ -81,5 +83,8 @@ Lovable Vite plugin — edit the sources under `src/lib/mcp/`, not the generated
 
 ## Deploying
 
-Open the [Lovable project](https://lovable.dev/projects/f89616eb-fa24-4613-8fa4-f68d85fc755f)
-and use Share → Publish. Custom domains are configured under Project → Settings → Domains.
+Pushing to `main` deploys to [GitHub Pages](https://puchaarunkumar.github.io/abiliverse-connect/)
+via GitHub Actions. The site can also be published from the
+[Lovable project](https://lovable.dev/projects/f89616eb-fa24-4613-8fa4-f68d85fc755f) with
+Share → Publish. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for both, and for applying
+database migrations.
