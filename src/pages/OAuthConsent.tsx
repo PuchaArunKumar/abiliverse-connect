@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Accessibility } from "lucide-react";
 import Layout from "@/components/layout/Layout";
+import { appUrl, basePath } from "@/lib/url";
 
 // Local typed wrapper for the beta supabase.auth.oauth namespace.
 type OAuthClient = { name?: string; client_name?: string; redirect_uri?: string; redirect_uris?: string[] };
@@ -39,8 +40,8 @@ const OAuthConsent = () => {
       }
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) {
-        const next = window.location.pathname + window.location.search;
-        window.location.href = "/login?next=" + encodeURIComponent(next);
+        const next = window.location.pathname.slice(basePath.length) + window.location.search;
+        window.location.href = appUrl("/login?next=" + encodeURIComponent(next));
         return;
       }
       const { data, error } = await oauthApi.getAuthorizationDetails(authorizationId);

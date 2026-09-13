@@ -40,7 +40,7 @@ These four have not been applied to the live database yet:
 | `20260807090000_user_roles_rbac.sql` | `user_roles`, `app_role` enum, `has_role()` / `is_admin()` / `is_moderator()` |
 | `20260807090100_problem_repository.sql` | `problems` and its votes, bookmarks, comments, reports, revisions, plus full-text search |
 | `20260807090200_public_catalog_read.sql` | Anonymous read on `jobs`, `courses`, `events` |
-| `20260807090300_bootstrap_admin.sql` | Grants `admin` to `abilitiverse@gmail.com` |
+| `20260807090300_bootstrap_admin.sql` | Signup trigger grants only the baseline `volunteer` role; the first admin is granted by hand |
 
 They are ordered by filename and must be applied in that order — the problem
 repository's policies call `is_moderator()` from the first migration.
@@ -58,10 +58,12 @@ repository's policies call `is_moderator()` from the first migration.
    Then run `npx tsc --noEmit -p tsconfig.app.json`. A mismatch here means the
    hand-written types drifted from the schema.
 
-2. **Create the admin account.** Sign up at `/signup` as
-   `abilitiverse@gmail.com`. The trigger from `20260807090300` grants `admin` on
-   signup. Until that account exists nobody holds the role, so no one can grant
-   roles to anyone else.
+2. **Create the admin account.** Sign up at `/signup` with the account that
+   should be admin, then grant the role from the Supabase SQL editor — the
+   exact statements are in the comment at the end of
+   `20260807090300_bootstrap_admin.sql`. Admin is never granted by email match
+   on signup, because addresses are not verified. Until the first grant nobody
+   holds the role, so no one can grant roles to anyone else.
 
    Verify:
 
@@ -69,7 +71,7 @@ repository's policies call `is_moderator()` from the first migration.
    SELECT u.email, r.role
    FROM auth.users u
    JOIN public.user_roles r ON r.user_id = u.id
-   WHERE u.email = 'abilitiverse@gmail.com';
+   WHERE r.role = 'admin';
    ```
 
 3. **Smoke test** `/problems` while signed out — it should render the catalogue,
@@ -78,8 +80,34 @@ repository's policies call `is_moderator()` from the first migration.
 
 ## Publishing the frontend
 
+### GitHub Pages
+
+Every push to `main` runs `.github/workflows/deploy-pages.yml`: it installs,
+runs the tests, builds, and publishes to
+https://puchaarunkumar.github.io/abiliverse-connect/. A failing test stops the
+deploy. Re-run it by hand from Actions → Deploy to GitHub Pages → Run workflow.
+
+Pages serves the site under `/abiliverse-connect/`, so the build passes
+`--base`, and the router and auth redirects read it from
+`import.meta.env.BASE_URL` (see `src/lib/url.ts`). Use `appUrl()` for any URL
+that leaves the router — a hard-coded `/path` works locally and 404s on Pages.
+Pages has no SPA rewrites, so the workflow copies `index.html` to `404.html`
+to make deep links load.
+
+For email confirmation and password-reset links to land on Pages, add the site
+under Supabase → Authentication → URL Configuration → Redirect URLs:
+
+```
+https://puchaarunkumar.github.io/abiliverse-connect/**
+```
+
+Google sign-in goes through Lovable's auth broker and may only accept
+Lovable-hosted origins; email/password sign-in does not depend on it.
+
+### Lovable
+
 Lovable → Share → Publish. Custom domains live under Project → Settings →
-Domains.
+Domains. This build uses base `/`, so the same code serves both.
 
 ## Do not build the MCP function on Windows
 
