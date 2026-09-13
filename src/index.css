@@ -8,99 +8,101 @@
 
 @layer base {
   :root {
-    /* Navy ink on a cool ground; teal is the single action colour, blue is
-       reserved for links so a link never reads as a button. Every pairing
+    /* Corporate navy: one hue family. Navy carries the brand and filled
+       buttons, a single blue marks interactive text, and everything else is
+       slate. No second brand colour competes for attention. Every pairing
        below is measured, not estimated -- see docs/COLOR.md. */
-    --background: 210 40% 98%;      /* #F8FAFC */
-    --foreground: 221 38% 15%;      /* #172033  15.6:1 on background */
+    --background: 210 40% 98%;      /* #F8FAFC slate-50 */
+    --foreground: 222 47% 11%;      /* #0F172A */
 
     --card: 0 0% 100%;
-    --card-foreground: 221 38% 15%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 221 38% 15%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 208 61% 18%;         /* #12304A navy  13.0:1 */
+    --primary: 213 73% 16%;         /* #0B2545 navy */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 170 32% 93%;       /* #E6F2F0 teal wash */
-    --secondary-foreground: 175 77% 20%;
+    /* Icon tiles, badges, tags: a faint navy wash, not a second colour. */
+    --secondary: 214 50% 95%;
+    --secondary-foreground: 213 73% 16%;
 
-    --muted: 212 28% 95%;
-    --muted-foreground: 215 20% 35%; /* #47566B  7.4:1 */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 19% 35%; /* #475569 slate-600 */
 
-    /* Corrected from #D97706, which measured 3.04:1 and failed AA. */
-    --accent: 26 90% 37%;           /* #B45309  4.8:1 */
-    --accent-foreground: 0 0% 100%;
+    /* shadcn paints hover and selected states with accent, so it must be a
+       quiet surface. It was amber with white text, which turned every menu
+       item and outline button orange on hover. */
+    --accent: 214 40% 93%;
+    --accent-foreground: 213 73% 16%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 42%;       /* #B91C1C */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 212 28% 88%;
-    --input: 212 28% 85%;
-    --ring: 175 77% 26%;
+    --border: 214 32% 91%;          /* #E2E8F0 */
+    --input: 214 25% 80%;
+    --ring: 221 83% 40%;
 
-    /* Teal drives every control; blue is links only. Keeping them separate is
-       what stops a link and a button looking like the same affordance. */
-    --action: 175 77% 26%;          /* #0F766E  5.2:1 -- replaces #087E8B,
-                                       which passed at only 4.60:1 */
+    /* One blue for interactive text and icons. Buttons are told apart from
+       links by shape (filled navy), not by hue. */
+    --action: 221 83% 40%;          /* #1146BB */
     --action-foreground: 0 0% 100%;
-    --link: 220 87% 51%;            /* #155EEF  5.2:1 */
+    --link: 221 83% 40%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 210 40% 97%;
-    --sidebar-foreground: 221 38% 15%;
-    --sidebar-primary: 208 61% 18%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 213 73% 16%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 170 32% 93%;
-    --sidebar-accent-foreground: 175 77% 20%;
-    --sidebar-border: 212 28% 88%;
-    --sidebar-ring: 175 77% 26%;
+    --sidebar-accent: 214 40% 93%;
+    --sidebar-accent-foreground: 213 73% 16%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 221 83% 40%;
 
     /* Custom tokens */
-    --hero-gradient: linear-gradient(135deg, hsl(208 61% 18%), hsl(208 55% 26%));
-    --warm-gradient: linear-gradient(135deg, hsl(26 90% 37%), hsl(26 80% 45%));
+    --hero-gradient: linear-gradient(135deg, hsl(213 73% 16%), hsl(215 60% 24%));
     --surface-elevated: 0 0% 100%;
-    --text-subtle: 215 20% 42%;
+    --text-subtle: 215 16% 42%;
   }
 
   .dark {
     /* Not an inversion: each value re-measured against the dark ground.
-       Ratios in docs/COLOR.md. */
-    --background: 212 36% 9%;       /* #0F1720 */
-    --foreground: 214 35% 92%;      /* 14.9:1 */
-    --card: 211 32% 13%;
-    --card-foreground: 214 35% 92%;
-    --popover: 211 32% 13%;
-    --popover-foreground: 214 35% 92%;
-    --primary: 171 49% 58%;         /* 9.0:1 -- light teal carries brand here,
-                                       navy is unreadable on a dark ground */
-    --primary-foreground: 212 36% 9%;
-    --secondary: 211 30% 17%;
-    --secondary-foreground: 171 49% 72%;
-    --muted: 211 30% 16%;
-    --muted-foreground: 215 20% 67%; /* 7.6:1 */
-    --accent: 29 73% 66%;           /* 8.7:1 */
-    --accent-foreground: 212 36% 9%;
-    --destructive: 0 62% 30.6%;
+       Navy is unreadable on a dark background, so a light blue carries the
+       brand here. Ratios in docs/COLOR.md. */
+    --background: 222 47% 7%;       /* #090E1A */
+    --foreground: 214 32% 91%;
+    --card: 222 38% 11%;
+    --card-foreground: 214 32% 91%;
+    --popover: 222 38% 11%;
+    --popover-foreground: 214 32% 91%;
+    --primary: 215 90% 76%;
+    --primary-foreground: 222 47% 7%;
+    --secondary: 220 33% 16%;
+    --secondary-foreground: 215 90% 84%;
+    --muted: 220 33% 15%;
+    --muted-foreground: 215 20% 68%;
+    --accent: 220 30% 19%;
+    --accent-foreground: 214 32% 91%;
+    --destructive: 0 62% 36%;
     --destructive-foreground: 0 0% 100%;
-    --border: 211 26% 22%;
-    --input: 211 26% 22%;
-    --ring: 171 49% 58%;
-    --action: 171 49% 58%;
-    --action-foreground: 212 36% 9%;
-    --link: 219 100% 76%;
-    --sidebar-background: 212 34% 11%;
-    --sidebar-foreground: 214 35% 92%;
-    --sidebar-primary: 171 49% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 211 30% 17%;
-    --sidebar-accent-foreground: 171 49% 72%;
-    --sidebar-border: 211 26% 22%;
-    --sidebar-ring: 171 49% 58%;
-    --surface-elevated: 211 32% 15%;
-    --text-subtle: 215 20% 60%;
+    --border: 220 26% 21%;
+    --input: 220 22% 30%;
+    --ring: 215 90% 76%;
+    --action: 215 90% 76%;
+    --action-foreground: 222 47% 7%;
+    --link: 215 90% 76%;
+    --sidebar-background: 222 42% 9%;
+    --sidebar-foreground: 214 32% 91%;
+    --sidebar-primary: 215 90% 76%;
+    --sidebar-primary-foreground: 222 47% 7%;
+    --sidebar-accent: 220 30% 19%;
+    --sidebar-accent-foreground: 214 32% 91%;
+    --sidebar-border: 220 26% 21%;
+    --sidebar-ring: 215 90% 76%;
+    --surface-elevated: 222 38% 13%;
+    --text-subtle: 215 18% 60%;
   }
 }
 
@@ -143,14 +145,16 @@ html.a11y-contrast {
   --foreground: 0 0% 0%;
   --card: 0 0% 100%;
   --card-foreground: 0 0% 0%;
-  --primary: 208 80% 14%;
+  --primary: 213 90% 12%;
   --primary-foreground: 0 0% 100%;
   --border: 0 0% 0%;
   --muted-foreground: 0 0% 15%;
-  --action: 175 100% 18%;
+  --accent: 214 40% 88%;
+  --accent-foreground: 0 0% 0%;
+  --action: 222 100% 32%;
   --action-foreground: 0 0% 100%;
-  --link: 220 100% 38%;
-  --ring: 220 100% 38%;
+  --link: 222 100% 32%;
+  --ring: 222 100% 32%;
 }
 html.a11y-contrast.dark,
 html.dark.a11y-contrast {
@@ -158,11 +162,14 @@ html.dark.a11y-contrast {
   --foreground: 0 0% 100%;
   --card: 0 0% 4%;
   --card-foreground: 0 0% 100%;
-  --primary: 171 70% 68%;
+  --primary: 215 100% 82%;
   --border: 0 0% 100%;
   --muted-foreground: 0 0% 90%;
-  --action: 171 70% 68%;
-  --link: 219 100% 82%;
+  --accent: 220 30% 22%;
+  --accent-foreground: 0 0% 100%;
+  --action: 215 100% 82%;
+  --link: 215 100% 82%;
+  --ring: 215 100% 82%;
 }
 html.a11y-dyslexia body,
 html.a11y-dyslexia h1,
