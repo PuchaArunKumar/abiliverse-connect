@@ -97,7 +97,18 @@ describe("links", () => {
     expect(optionalUrlError("Link", "http://example.org")).toBeUndefined();
   });
 
-  it.each(["acme.com/careers", "javascript:alert(1)", "ms-officecmd:x", "ftp://example.org"])(
+  // URL() repairs these into valid http(s) URLs, but the database CHECK
+  // ('^https?://[^\s]+$') rejects them, so the form must too.
+  it.each([
+    "acme.com/careers",
+    "javascript:alert(1)",
+    "ms-officecmd:x",
+    "ftp://example.org",
+    "https:example.com",
+    "https:/example.com",
+    "http:example.com/path",
+    "https:\\\\example.com",
+  ])(
     "rejects %s",
     (value) => {
       expect(optionalUrlError("Link", value)).toMatch(/https:\/\//);

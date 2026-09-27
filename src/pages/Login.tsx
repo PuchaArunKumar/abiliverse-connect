@@ -72,7 +72,9 @@ const Login = () => {
   };
 
   const handleCancel2fa = async () => {
-    const { error: signOutError } = await signOut();
+    // Only this device's unfinished sign-in; the account's verified sessions
+    // on other devices stay signed in.
+    const { error: signOutError } = await signOut("local");
     if (signOutError) {
       toast.error(signOutError.message);
     }

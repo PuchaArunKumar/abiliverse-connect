@@ -9,6 +9,11 @@
 export function isSafeHttpUrl(value: string | null | undefined): boolean {
   const trimmed = (value ?? "").trim();
   if (!trimmed || /\s/.test(trimmed)) return false;
+  // The literal "://" is required, as the database CHECKs require it
+  // ('^https?://[^\s]+$'). URL() alone is more forgiving: it repairs
+  // "https:example.com" and "https:\example.com" into valid URLs, so a form
+  // would accept a link the insert then rejects.
+  if (!/^https?:\/\//i.test(trimmed)) return false;
   try {
     const url = new URL(trimmed);
     return url.protocol === "http:" || url.protocol === "https:";
