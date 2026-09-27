@@ -11,6 +11,7 @@ import Layout from "@/components/layout/Layout";
 import TwoFactorChallenge from "@/components/auth/TwoFactorChallenge";
 import FormAlert from "@/components/auth/FormAlert";
 import { friendlyAuthError, isInsufficientAal } from "@/components/auth/auth-errors";
+import { clearRecoverySession, isRecoverySession, markRecoverySession } from "@/lib/recovery";
 
 const MIN_PASSWORD_LENGTH = 6;
 
@@ -42,11 +43,10 @@ const ResetPassword = () => {
   // password again after entering their code.
   const [pendingPassword, setPendingPassword] = useState<string | null>(null);
   // The SDK consumes the link (and clears the hash) before this lazily loaded
-  // page may have mounted, so the event and the hash are both only hints;
-  // the session's own record of how it was created is checked as well.
-  const sawRecovery = useRef(
-    new URLSearchParams(window.location.hash.replace(/^#/, "")).get("type") === "recovery",
-  );
+  // page may have mounted, so the recovery session is recognised by the
+  // marker src/lib/recovery.ts took at startup. The event is a backstop for
+  // when session storage is unavailable.
+  const sawRecovery = useRef(false);
 
   useDocumentTitle(
     status === "stepUp" ? "Confirm it's you" : status === "invalid" ? "Reset link not valid" : "Choose a new password",
@@ -55,8 +55,11 @@ const ResetPassword = () => {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") sawRecovery.current = true;
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        sawRecovery.current = true;
+        markRecoverySession(session?.access_token);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -76,9 +79,7 @@ const ResetPassword = () => {
       }
       const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (!active) return;
-      const fromRecoveryLink =
-        sawRecovery.current ||
-        (data?.currentAuthenticationMethods ?? []).some((m) => m.method === "recovery");
+      const fromRecoveryLink = sawRecovery.current || isRecoverySession(session.access_token);
       if (!fromRecoveryLink) {
         setStatus("invalid");
         return;
@@ -109,6 +110,8 @@ const ResetPassword = () => {
         return;
       }
       setPendingPassword(null);
+      // The link has done its job; this session is now an ordinary one.
+      clearRecoverySession();
       toast.success("Your password has been changed. You are signed in.");
       navigate("/", { replace: true });
     } finally {
@@ -136,7 +139,8 @@ const ResetPassword = () => {
   };
 
   const handleCancelStepUp = async () => {
-    const { error: signOutError } = await signOut();
+    // Only this device's recovery session, not the account's other devices.
+    const { error: signOutError } = await signOut("local");
     if (signOutError) toast.error(signOutError.message);
     navigate("/login", { replace: true });
   };

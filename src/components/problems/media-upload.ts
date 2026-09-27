@@ -94,19 +94,28 @@ export async function uploadPendingMedia(
 }
 
 /**
- * Removes one attached file: the Storage object first, then its row, as the
- * problem_media migration expects. Returns an error sentence, or null.
+ * Deletes Storage objects, best effort. Called only after the rows that point
+ * at them are gone, so a failure here leaves an invisible orphan file (which
+ * the problem_media migration accepts and the dashboard can clean up), never a
+ * public problem showing a broken image.
+ */
+async function removeObjects(paths: string[]): Promise<void> {
+  if (paths.length === 0) return;
+  try {
+    await supabase.storage.from(PROBLEM_MEDIA_BUCKET).remove(paths);
+  } catch {
+    // Orphaned file; see above.
+  }
+}
+
+/**
+ * Removes one attached file: the row first, then the Storage object, so the
+ * gallery never lists a file that no longer exists. Returns an error
+ * sentence, or null.
  */
 export async function removeProblemMedia(
   media: Pick<ProblemMedia, "id" | "storage_path">,
 ): Promise<string | null> {
-  const { error: storageError } = await supabase.storage
-    .from(PROBLEM_MEDIA_BUCKET)
-    .remove([media.storage_path]);
-  if (storageError && !isMissingBucketError(storageError)) {
-    return "The file could not be removed. Please try again.";
-  }
-
   const { data, error } = await supabase
     .from("problem_media")
     .delete()
@@ -115,32 +124,31 @@ export async function removeProblemMedia(
   if (error) return "The file could not be removed. Please try again.";
   // RLS turns a delete of someone else's row into "0 rows", not an error.
   if (!data || data.length === 0) return "You don't have permission to remove this file.";
+  await removeObjects([media.storage_path]);
   return null;
 }
 
 /**
- * Removes every Storage object attached to a problem, ahead of deleting the
- * problem itself (the row cascade cannot reach Storage). A missing table or
- * bucket means there is nothing to remove.
+ * The Storage paths of a problem's files, read before the problem is deleted
+ * (the row cascade removes problem_media but cannot reach Storage). A missing
+ * table means there are none.
  */
-export async function removeAllProblemMedia(problemId: string): Promise<string | null> {
+export async function listProblemMediaPaths(
+  problemId: string,
+): Promise<{ paths: string[]; error: string | null }> {
   const { data, error } = await supabase
     .from("problem_media")
     .select("storage_path")
     .eq("problem_id", problemId);
   if (error) {
     return isMissingSchemaError(error)
-      ? null
-      : "The problem's files could not be removed, so the problem was not deleted. Please try again.";
+      ? { paths: [], error: null }
+      : { paths: [], error: "The problem could not be deleted. Please try again." };
   }
-  const paths = (data ?? []).map((row) => row.storage_path);
-  if (paths.length === 0) return null;
+  return { paths: (data ?? []).map((row) => row.storage_path), error: null };
+}
 
-  const { error: storageError } = await supabase.storage
-    .from(PROBLEM_MEDIA_BUCKET)
-    .remove(paths);
-  if (storageError && !isMissingBucketError(storageError)) {
-    return "The problem's files could not be removed, so the problem was not deleted. Please try again.";
-  }
-  return null;
+/** Removes a deleted problem's files from Storage, best effort. */
+export async function removeDeletedProblemMedia(paths: string[]): Promise<void> {
+  await removeObjects(paths);
 }

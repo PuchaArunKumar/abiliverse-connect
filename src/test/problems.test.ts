@@ -98,6 +98,15 @@ describe("validateDraft", () => {
     expect(validateDraft({ ...validDraft, title: "   abc    " }).title).toBeDefined();
   });
 
+  it("counts characters the way the database does, so emoji are one each", () => {
+    // Four emoji are 8 UTF-16 units but 4 characters to char_length, which the
+    // problems_title_check would reject.
+    expect(validateDraft({ ...validDraft, title: "🦽🦽🦽🦽" }).title).toBeDefined();
+    expect(validateDraft({ ...validDraft, description: "🦽".repeat(10) }).description).toBeDefined();
+    // 200 emoji are 400 units but exactly the 200-character maximum.
+    expect(validateDraft({ ...validDraft, title: "🦽".repeat(200) }).title).toBeUndefined();
+  });
+
   it("rejects research links that are not http(s)", () => {
     const errors = validateDraft({
       ...validDraft,

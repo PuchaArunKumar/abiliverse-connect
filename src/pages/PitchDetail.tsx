@@ -38,6 +38,7 @@ import {
   type LinkedProblem,
   type PitchDetailRow,
 } from "@/lib/pitches";
+import { useFocusAfterReload } from "@/hooks/useFocusAfterReload";
 
 type PageState = "loading" | "ready" | "missing" | "not_found" | "error";
 
@@ -51,6 +52,12 @@ const PitchDetail = () => {
   const userId = user?.id ?? null;
 
   const [state, setState] = useState<PageState>("loading");
+
+  // The page swaps its whole body on reload, so each state's h1 shares this ref.
+
+  const h1Ref = useRef<HTMLHeadingElement>(null);
+
+  const focusAfterReload = useFocusAfterReload(state === "loading", h1Ref);
   const [pitch, setPitch] = useState<PitchDetailRow | null>(null);
   const [problem, setProblem] = useState<ProblemLink>(null);
   const [founderName, setFounderName] = useState<string | null>(null);
@@ -249,7 +256,7 @@ const PitchDetail = () => {
     return (
       <Layout>
         <section className="container max-w-2xl py-16 text-center">
-          <h1 className="mb-3 font-heading text-2xl font-bold">
+          <h1 ref={h1Ref} tabIndex={-1} className="mb-3 font-heading text-2xl font-bold focus:outline-none">
             {notFound ? "Pitch not found" : "This pitch could not be loaded"}
           </h1>
           <p className="mb-6 text-muted-foreground">
@@ -259,7 +266,13 @@ const PitchDetail = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {!notFound && (
-              <Button className="min-h-11" onClick={() => setReloadTick((t) => t + 1)}>
+              <Button
+                className="min-h-11"
+                onClick={() => {
+                  focusAfterReload();
+                  setReloadTick((t) => t + 1);
+                }}
+              >
                 Try again
               </Button>
             )}
@@ -291,7 +304,11 @@ const PitchDetail = () => {
         </Link>
 
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="min-w-0 font-heading text-3xl font-bold text-foreground [overflow-wrap:anywhere]">
+          <h1
+            ref={h1Ref}
+            tabIndex={-1}
+            className="min-w-0 font-heading text-3xl font-bold text-foreground [overflow-wrap:anywhere] focus:outline-none"
+          >
             {pitch.title}
           </h1>
           <div className="flex flex-wrap gap-2">

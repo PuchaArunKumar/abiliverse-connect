@@ -276,6 +276,16 @@ export type DraftField =
 export type DraftErrors = Partial<Record<DraftField, string>>;
 
 /**
+ * Length as Postgres' char_length counts it: in code points, not the UTF-16
+ * units String#length counts. An emoji is one character to the database but
+ * two to .length, so a title of four emoji would pass an 8-character minimum
+ * here and then be rejected by the CHECK.
+ */
+function charLength(s: string): number {
+  return Array.from(s).length;
+}
+
+/**
  * Messages are complete sentences that name the field, because they are also
  * listed in the error summary, away from the field they belong to.
  */
@@ -284,25 +294,25 @@ export function validateDraft(d: ProblemDraft): DraftErrors {
   const title = d.title.trim();
   const description = d.description.trim();
 
-  if (title.length < TITLE_MIN) {
+  if (charLength(title) < TITLE_MIN) {
     errors.title = `Enter a title of at least ${TITLE_MIN} characters.`;
-  } else if (title.length > TITLE_MAX) {
+  } else if (charLength(title) > TITLE_MAX) {
     errors.title = `Keep the title to ${TITLE_MAX} characters or fewer.`;
   }
 
-  if (description.length < DESCRIPTION_MIN) {
+  if (charLength(description) < DESCRIPTION_MIN) {
     errors.description = `Describe the problem in at least ${DESCRIPTION_MIN} characters.`;
-  } else if (description.length > DESCRIPTION_MAX) {
+  } else if (charLength(description) > DESCRIPTION_MAX) {
     errors.description = `Keep the description to ${DESCRIPTION_MAX} characters or fewer.`;
   }
 
-  if (d.category.trim().length > SHORT_TEXT_MAX) {
+  if (charLength(d.category.trim()) > SHORT_TEXT_MAX) {
     errors.category = `Keep the category to ${SHORT_TEXT_MAX} characters or fewer.`;
   }
-  if (d.country.trim().length > SHORT_TEXT_MAX) {
+  if (charLength(d.country.trim()) > SHORT_TEXT_MAX) {
     errors.country = `Keep the country to ${SHORT_TEXT_MAX} characters or fewer.`;
   }
-  if (d.existingSolutions.trim().length > EXISTING_SOLUTIONS_MAX) {
+  if (charLength(d.existingSolutions.trim()) > EXISTING_SOLUTIONS_MAX) {
     errors.existingSolutions = `Keep existing solutions to ${EXISTING_SOLUTIONS_MAX} characters or fewer.`;
   }
 
@@ -544,7 +554,7 @@ export function draftStorageKey(userId: string): string {
 export function validateReportReason(reason: string): string | null {
   const text = reason.trim();
   if (!text) return "Say what is wrong with this problem, so a moderator knows what to look for.";
-  if (text.length > REPORT_REASON_MAX) {
+  if (charLength(text) > REPORT_REASON_MAX) {
     return `Keep the reason to ${REPORT_REASON_MAX} characters or fewer.`;
   }
   return null;

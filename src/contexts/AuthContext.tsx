@@ -10,6 +10,9 @@ import {
 } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+// Imported for its side effect as well: it captures a password-reset link
+// from the URL before the SDK clears it (see src/lib/recovery.ts).
+import { clearRecoverySession, markRecoverySession } from "@/lib/recovery";
 
 interface AuthContextType {
   /** Null until the session is fully authenticated (see mfaRequired). */
@@ -24,7 +27,12 @@ interface AuthContextType {
    * They have no more access than a visitor until they do.
    */
   mfaRequired: boolean;
-  signOut: () => Promise<{ error: Error | null }>;
+  /**
+   * "global" (the default) ends every session the account has; "local" ends
+   * only this device's, for abandoning a half-finished sign-in without
+   * signing the person out of their other devices.
+   */
+  signOut: (scope?: "global" | "local") => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -87,6 +95,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
         if (!error && data) {
           mfaRequired = data.nextLevel === "aal2" && data.currentLevel !== "aal2";
+          // Without a token the SDK answers from the factors cached with the
+          // session. If two-factor was turned on from another device, that
+          // cache is stale until the next refresh while the database already
+          // enforces it, so every members-only read would come back empty.
+          // Passing the token makes it ask the server. An aal2 session needs
+          // nothing more, and if the server cannot be reached the cached
+          // answer stands.
+          if (data.currentLevel !== "aal2") {
+            const live = await supabase.auth.mfa.getAuthenticatorAssuranceLevel(
+              session.access_token,
+            );
+            if (!live.error && live.data) {
+              mfaRequired = live.data.nextLevel === "aal2" && live.data.currentLevel !== "aal2";
+            }
+          }
         }
       } catch {
         // Keep the fail-closed default above.
@@ -103,8 +126,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let heardEvent = false;
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       heardEvent = true;
+      if (event === "PASSWORD_RECOVERY") markRecoverySession(session?.access_token);
+      if (event === "SIGNED_OUT") clearRecoverySession();
       evaluate(session);
     });
 
@@ -121,8 +146,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [evaluate]);
 
-  const signOut = useCallback(async (): Promise<{ error: Error | null }> => {
-    const { error } = await supabase.auth.signOut();
+  const signOut = useCallback(async (
+    scope: "global" | "local" = "global",
+  ): Promise<{ error: Error | null }> => {
+    const { error } = await supabase.auth.signOut({ scope });
     if (!error) return { error: null };
 
     // The SDK keeps the session on this device when the server cannot be

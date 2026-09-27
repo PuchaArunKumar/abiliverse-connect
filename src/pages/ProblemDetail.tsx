@@ -17,7 +17,7 @@ import ProblemDiscussion, {
 } from "@/components/problems/ProblemDiscussion";
 import ReportProblemDialog from "@/components/problems/ReportProblemDialog";
 import RevisionHistory from "@/components/problems/RevisionHistory";
-import { removeAllProblemMedia } from "@/components/problems/media-upload";
+import { listProblemMediaPaths, removeDeletedProblemMedia } from "@/components/problems/media-upload";
 import { useIsModerator } from "@/components/problems/useIsModerator";
 import {
   ArrowBigUp,
@@ -340,10 +340,12 @@ const ProblemDetail = () => {
 
   const deleteProblem = async (): Promise<string | null> => {
     if (!problem) return null;
-    // Storage objects first: the row's cascade cannot reach Storage, so once
-    // the row is gone nothing would know these files existed.
-    const mediaProblem = await removeAllProblemMedia(problem.id);
-    if (mediaProblem) return mediaProblem;
+    // Note the files first (the row's cascade cannot reach Storage, so once
+    // the row is gone nothing would know they existed), delete the problem,
+    // and only then remove the files. If the delete fails the problem stays
+    // exactly as it was, media included.
+    const media = await listProblemMediaPaths(problem.id);
+    if (media.error) return media.error;
     const { data, error } = await supabase
       .from("problems")
       .delete()
@@ -352,6 +354,7 @@ const ProblemDetail = () => {
     if (error) return friendlyWriteError(error, "The problem could not be deleted. Please try again.");
     // RLS turns a refused delete into "0 rows" rather than an error.
     if (!data || data.length === 0) return "You don't have permission to delete this problem.";
+    await removeDeletedProblemMedia(media.paths);
     return null;
   };
 

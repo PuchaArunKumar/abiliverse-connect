@@ -52,6 +52,7 @@ import {
   type Routine,
   type RoutineValues,
 } from "@/lib/companion";
+import { useFocusAfterReload } from "@/hooks/useFocusAfterReload";
 
 type LoadState = "loading" | "ready" | "missing" | "error";
 
@@ -105,6 +106,7 @@ const Companion = () => {
   const addingRef = useRef(false);
 
   const h1Ref = useRef<HTMLHeadingElement>(null);
+  const focusAfterReload = useFocusAfterReload(load === "loading", h1Ref);
   const afterCloseRef = useRef<AfterClose>({ focus: null });
   const focusRequestRef = useRef<string | null>(null);
 
@@ -473,7 +475,10 @@ const Companion = () => {
               type="button"
               variant="outline"
               className="mt-4 min-h-11"
-              onClick={() => setReloadToken((t) => t + 1)}
+              onClick={() => {
+                focusAfterReload();
+                setReloadToken((t) => t + 1);
+              }}
             >
               <RefreshCw aria-hidden="true" />
               Try again

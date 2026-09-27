@@ -165,7 +165,9 @@ describe("AuthProvider assurance-level gating", () => {
     });
     expect(callsDuringCallback).toBe(0);
     await waitFor(() => expect(text("user")).toBe("user-1"));
-    expect(mocks.getAal).toHaveBeenCalledTimes(1);
+    // Both happen after the callback: the cached answer, then (for an aal1
+    // session) the live one that catches two-factor enabled elsewhere.
+    expect(mocks.getAal).toHaveBeenCalledTimes(2);
   });
 
   it("fails closed when the level cannot be read for someone with a verified factor", async () => {
@@ -225,5 +227,68 @@ describe("AuthProvider signOut", () => {
     expect(signOutResult?.error).toBeInstanceOf(Error);
     expect(localStorage.getItem("sb-test-auth-token")).toBeNull();
     expect(text("user")).toBe("none");
+  });
+});
+
+describe("AuthProvider sees two-factor turned on from another device", () => {
+  it("asks the server when the cached factors say there is no second factor", async () => {
+    mocks.getSession.mockResolvedValue({ data: { session: session() } });
+    // Cached answer (no token): nothing to step up to. Live answer (with the
+    // token): a verified factor now exists, so this aal1 session is gated.
+    mocks.getAal.mockImplementation(async (jwt?: string) =>
+      jwt ? aal("aal1", "aal2") : aal("aal1", "aal1"),
+    );
+
+    renderAuth();
+    await waitFor(() => expect(text("loading")).toBe("false"));
+    expect(mocks.getAal).toHaveBeenCalledWith("token");
+    expect(text("mfa")).toBe("true");
+    expect(text("user")).toBe("none");
+  });
+
+  it("keeps the cached answer when the server cannot be reached", async () => {
+    mocks.getSession.mockResolvedValue({ data: { session: session() } });
+    mocks.getAal.mockImplementation(async (jwt?: string) =>
+      jwt ? { data: null, error: new Error("offline") } : aal("aal1", "aal1"),
+    );
+
+    renderAuth();
+    await waitFor(() => expect(text("loading")).toBe("false"));
+    expect(text("mfa")).toBe("false");
+    expect(text("user")).toBe("user-1");
+  });
+
+  it("does not ask the server again for a session that already passed two-factor", async () => {
+    mocks.getSession.mockResolvedValue({ data: { session: session("verified") } });
+    mocks.getAal.mockResolvedValue(aal("aal2", "aal2"));
+
+    renderAuth();
+    await waitFor(() => expect(text("loading")).toBe("false"));
+    expect(mocks.getAal).toHaveBeenCalledTimes(1);
+    expect(mocks.getAal).not.toHaveBeenCalledWith("token");
+    expect(text("user")).toBe("user-1");
+  });
+});
+
+describe("AuthProvider sign-out scope", () => {
+  const ScopedProbe = () => {
+    const auth = useAuth();
+    return (
+      <button type="button" onClick={() => void auth.signOut("local")}>
+        cancel
+      </button>
+    );
+  };
+
+  it("passes a local scope through, so other devices stay signed in", async () => {
+    mocks.getSession.mockResolvedValue({ data: { session: null } });
+    mocks.signOut.mockResolvedValue({ error: null });
+    render(
+      <AuthProvider>
+        <ScopedProbe />
+      </AuthProvider>,
+    );
+    await act(async () => screen.getByRole("button", { name: "cancel" }).click());
+    expect(mocks.signOut).toHaveBeenCalledWith({ scope: "local" });
   });
 });

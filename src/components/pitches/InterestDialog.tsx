@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type Ref } from "react";
+import { flushSync } from "react-dom";
 import { HandHeart, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -100,8 +101,12 @@ const InterestDialog = ({
     event.preventDefault();
     if (sendingRef.current) return;
     const found = validateInterest(values);
-    setErrors(found);
-    setServerError(null);
+    // Render the errors before focus moves, so the field is already marked
+    // invalid and described by its error when a screen reader announces it.
+    flushSync(() => {
+      setErrors(found);
+      setServerError(null);
+    });
     const firstInvalid = (Object.keys(FIELD_FOCUS) as (keyof InterestValues)[]).find(
       (field) => found[field],
     );
