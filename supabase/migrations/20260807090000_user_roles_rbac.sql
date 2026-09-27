@@ -33,7 +33,15 @@ CREATE TABLE public.user_roles (
   UNIQUE (user_id, role)
 );
 
-GRANT SELECT ON public.user_roles TO anon, authenticated;
+-- Supabase's default privileges grant ALL on new public tables to anon and
+-- authenticated. Revoke first so the grants below are the whole story.
+-- Visitors get nothing: several roles (person_with_disability, caregiver,
+-- parent) say something about a person's health, so the table is not a
+-- public directory. Writes are for admins only (see "roles_admin_write"); a
+-- role changes by removing one row and adding another, so there is no UPDATE.
+REVOKE ALL ON public.user_roles FROM anon, authenticated;
+GRANT SELECT, DELETE ON public.user_roles TO authenticated;
+GRANT INSERT (user_id, role) ON public.user_roles TO authenticated;
 GRANT ALL ON public.user_roles TO service_role;
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
@@ -73,16 +81,23 @@ AS $$
       OR public.has_role(auth.uid(), 'moderator');
 $$;
 
-REVOKE ALL ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.is_moderator() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO anon, authenticated;
+-- has_role() answers for any user id, so exposing it would let anyone ask
+-- "is this member a person_with_disability?" and undo the read policy below.
+-- Nothing outside these functions needs it: they are SECURITY DEFINER, so they
+-- call it with the owner's rights. is_admin() and is_moderator() only ever
+-- describe the caller, which is safe to tell them.
+REVOKE ALL ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.is_moderator() FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.is_moderator() TO anon, authenticated;
 
--- Roles are public so contributor type can be shown on profiles and problems.
-CREATE POLICY "roles_read_all" ON public.user_roles
-  FOR SELECT TO anon, authenticated USING (true);
+-- A member sees their own roles; moderators see everyone's, to act on them.
+-- Showing a contributor type publicly can come later as an opt-in per member,
+-- not as a side effect of holding a role.
+CREATE POLICY "roles_read_own_or_mod" ON public.user_roles
+  FOR SELECT TO authenticated
+  USING (auth.uid() = user_id OR public.is_moderator());
 
 -- Deliberately no self-insert policy: a user must not be able to grant
 -- themselves 'admin'. Roles are assigned by an admin or by the service role.

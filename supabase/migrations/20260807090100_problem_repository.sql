@@ -46,9 +46,10 @@ CREATE TABLE public.problems (
   video_urls text[] NOT NULL DEFAULT '{}',
   document_urls text[] NOT NULL DEFAULT '{}',
   -- Denormalised counters kept current by triggers below; reading them avoids
-  -- an aggregate per row when listing problems.
-  vote_count integer NOT NULL DEFAULT 0,
-  comment_count integer NOT NULL DEFAULT 0,
+  -- an aggregate per row when listing problems. Only those triggers write them:
+  -- the API has no column grant on either (see below).
+  vote_count integer NOT NULL DEFAULT 0 CHECK (vote_count >= 0),
+  comment_count integer NOT NULL DEFAULT 0 CHECK (comment_count >= 0),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   -- Weighted lexical index. This is the substrate the duplicate-detection and
@@ -61,8 +62,27 @@ CREATE TABLE public.problems (
   ) STORED
 );
 
-GRANT SELECT ON public.problems TO anon;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.problems TO authenticated;
+-- Supabase's default privileges grant ALL on new public tables to anon and
+-- authenticated. Revoke first so the grants below are the whole story, and the
+-- column lists actually restrict what the API can write.
+--
+-- Column-level grants, because the row policies cannot tell which columns a
+-- write touches. With a table-wide grant an author could send
+-- vote_count: 100000 or created_at: 2999-01-01 and sit at the top of every
+-- sort, which would make "this affects me too" meaningless. id, the counters,
+-- the timestamps and search_vector belong to the database; user_id is set once
+-- on insert; status is left out of insert so every problem starts open.
+REVOKE ALL ON public.problems FROM anon, authenticated;
+GRANT SELECT ON public.problems TO anon, authenticated;
+GRANT INSERT (user_id, title, description, disability_types, category, country,
+              age_groups, severity, existing_solutions, related_research, tags,
+              image_urls, video_urls, document_urls)
+  ON public.problems TO authenticated;
+GRANT UPDATE (title, description, disability_types, category, country,
+              age_groups, severity, status, existing_solutions, related_research,
+              tags, image_urls, video_urls, document_urls)
+  ON public.problems TO authenticated;
+GRANT DELETE ON public.problems TO authenticated;
 GRANT ALL ON public.problems TO service_role;
 ALTER TABLE public.problems ENABLE ROW LEVEL SECURITY;
 
@@ -89,13 +109,18 @@ CREATE TABLE public.problem_votes (
   PRIMARY KEY (problem_id, user_id)
 );
 
-GRANT SELECT ON public.problem_votes TO anon;
-GRANT SELECT, INSERT, DELETE ON public.problem_votes TO authenticated;
+REVOKE ALL ON public.problem_votes FROM anon, authenticated;
+GRANT SELECT, DELETE ON public.problem_votes TO authenticated;
+GRANT INSERT (problem_id, user_id) ON public.problem_votes TO authenticated;
 GRANT ALL ON public.problem_votes TO service_role;
 ALTER TABLE public.problem_votes ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "problem_votes_read_all" ON public.problem_votes
-  FOR SELECT TO anon, authenticated USING (true);
+-- Private to the voter. "This affects me too" on a problem tagged mental
+-- health or chronic illness is a statement about the voter's own health, and
+-- nobody pressing the button expects it to be published next to their name.
+-- The public signal is problems.vote_count, not who is behind it.
+CREATE POLICY "problem_votes_read_own" ON public.problem_votes
+  FOR SELECT TO authenticated USING (auth.uid() = user_id);
 CREATE POLICY "problem_votes_insert_own" ON public.problem_votes
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "problem_votes_delete_own" ON public.problem_votes
@@ -109,11 +134,13 @@ CREATE TABLE public.problem_bookmarks (
   PRIMARY KEY (problem_id, user_id)
 );
 
-GRANT SELECT, INSERT, DELETE ON public.problem_bookmarks TO authenticated;
+REVOKE ALL ON public.problem_bookmarks FROM anon, authenticated;
+GRANT SELECT, DELETE ON public.problem_bookmarks TO authenticated;
+GRANT INSERT (problem_id, user_id) ON public.problem_bookmarks TO authenticated;
 GRANT ALL ON public.problem_bookmarks TO service_role;
 ALTER TABLE public.problem_bookmarks ENABLE ROW LEVEL SECURITY;
 
--- Unlike votes, a bookmark is private to the user who made it.
+-- Like a vote, a bookmark is private to the user who made it.
 CREATE POLICY "problem_bookmarks_read_own" ON public.problem_bookmarks
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
 CREATE POLICY "problem_bookmarks_insert_own" ON public.problem_bookmarks
@@ -130,8 +157,15 @@ CREATE TABLE public.problem_comments (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-GRANT SELECT ON public.problem_comments TO anon;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.problem_comments TO authenticated;
+-- Only the body of a comment can change. If problem_id were writable, a
+-- comment could be moved to another problem: the count trigger below only
+-- sees inserts and deletes, so each move would leave one problem's
+-- comment_count too high and the other's too low.
+REVOKE ALL ON public.problem_comments FROM anon, authenticated;
+GRANT SELECT ON public.problem_comments TO anon, authenticated;
+GRANT INSERT (problem_id, user_id, body) ON public.problem_comments TO authenticated;
+GRANT UPDATE (body) ON public.problem_comments TO authenticated;
+GRANT DELETE ON public.problem_comments TO authenticated;
 GRANT ALL ON public.problem_comments TO service_role;
 ALTER TABLE public.problem_comments ENABLE ROW LEVEL SECURITY;
 
@@ -155,7 +189,12 @@ CREATE TABLE public.problem_reports (
   UNIQUE (problem_id, user_id)
 );
 
-GRANT SELECT, INSERT, UPDATE ON public.problem_reports TO authenticated;
+-- One report per member per problem (the UNIQUE above answers a repeat with
+-- 23505). Moderators can only mark a report resolved, not rewrite it.
+REVOKE ALL ON public.problem_reports FROM anon, authenticated;
+GRANT SELECT ON public.problem_reports TO authenticated;
+GRANT INSERT (problem_id, user_id, reason) ON public.problem_reports TO authenticated;
+GRANT UPDATE (resolved) ON public.problem_reports TO authenticated;
 GRANT ALL ON public.problem_reports TO service_role;
 ALTER TABLE public.problem_reports ENABLE ROW LEVEL SECURITY;
 
@@ -177,13 +216,36 @@ CREATE TABLE public.problem_revisions (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-GRANT SELECT ON public.problem_revisions TO anon, authenticated;
+REVOKE ALL ON public.problem_revisions FROM anon, authenticated;
+GRANT SELECT, DELETE ON public.problem_revisions TO authenticated;
 GRANT ALL ON public.problem_revisions TO service_role;
 ALTER TABLE public.problem_revisions ENABLE ROW LEVEL SECURITY;
 
 -- Insert happens only through the trigger below, which is SECURITY DEFINER.
-CREATE POLICY "problem_revisions_read_all" ON public.problem_revisions
-  FOR SELECT TO anon, authenticated USING (true);
+--
+-- A revision holds the text as it was before an edit, and the usual reason to
+-- edit a report is to take something out: a name, a diagnosis, an employer.
+-- If the history were public, removing it by editing would not remove it. So
+-- only the author and moderators can read it, and either can delete a
+-- revision to finish a redaction without deleting the whole problem.
+CREATE POLICY "problem_revisions_read_author_or_mod" ON public.problem_revisions
+  FOR SELECT TO authenticated
+  USING (
+    public.is_moderator()
+    OR EXISTS (
+      SELECT 1 FROM public.problems p
+      WHERE p.id = problem_id AND p.user_id = auth.uid()
+    )
+  );
+CREATE POLICY "problem_revisions_delete_author_or_mod" ON public.problem_revisions
+  FOR DELETE TO authenticated
+  USING (
+    public.is_moderator()
+    OR EXISTS (
+      SELECT 1 FROM public.problems p
+      WHERE p.id = problem_id AND p.user_id = auth.uid()
+    )
+  );
 
 -- TRIGGERS --------------------------------------------------------------
 -- Counter and revision triggers must be SECURITY DEFINER: the voter or
@@ -280,6 +342,17 @@ CREATE INDEX idx_problem_revisions_problem ON public.problem_revisions (problem_
 -- SEARCH ----------------------------------------------------------------
 -- Ranked lexical search. The duplicate-detection engine calls this first to
 -- surface near-matches at submission time.
+--
+-- Any shared word is enough to match; the rank puts the closest first. Asking
+-- for every word (websearch_to_tsquery joins them with &) works against the
+-- purpose: the longer and more specific a new title gets, the less likely an
+-- existing report contains all of its words, so a reworded duplicate would
+-- vanish from the panel just as the title is finished.
+--
+-- The OR query is built from plainto_tsquery's output, whose lexemes are
+-- already stemmed and quoted, and cast straight to tsquery. Passing it through
+-- to_tsquery again would stem the stems. A query of only stop words yields no
+-- lexemes, and then nothing matches rather than everything.
 CREATE OR REPLACE FUNCTION public.search_problems(_query text, _limit integer DEFAULT 20)
 RETURNS TABLE (
   id uuid,
@@ -294,12 +367,20 @@ LANGUAGE sql
 STABLE
 SET search_path = public
 AS $$
+  WITH q AS (
+    SELECT nullif(
+             replace(plainto_tsquery('english', coalesce(_query, ''))::text, ' & ', ' | '),
+             ''
+           )::tsquery AS tsq
+  )
   SELECT p.id, p.title, p.description, p.vote_count, p.status, p.created_at,
-         ts_rank(p.search_vector, websearch_to_tsquery('english', _query)) AS rank
-  FROM public.problems p
-  WHERE p.search_vector @@ websearch_to_tsquery('english', _query)
+         ts_rank(p.search_vector, q.tsq) AS rank
+  FROM public.problems p, q
+  WHERE q.tsq IS NOT NULL
+    AND p.search_vector @@ q.tsq
   ORDER BY rank DESC, p.vote_count DESC
-  LIMIT LEAST(GREATEST(_limit, 1), 100);
+  LIMIT LEAST(GREATEST(coalesce(_limit, 20), 1), 100);
 $$;
 
+REVOKE ALL ON FUNCTION public.search_problems(text, integer) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.search_problems(text, integer) TO anon, authenticated;
