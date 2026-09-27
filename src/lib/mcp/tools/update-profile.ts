@@ -16,7 +16,16 @@ export default defineTool({
   inputSchema: {
     display_name: z.string().trim().min(1).max(120).optional().describe("Public display name."),
     bio: z.string().trim().max(2000).optional().describe("Short biography."),
-    avatar_url: z.string().url().optional().describe("URL to an avatar image."),
+    // http(s) only, matching the profiles_avatar_url CHECK: any other scheme
+    // (javascript:, data:) would be rejected by the database with a raw
+    // constraint error, and should never be stored as an image source anyway.
+    avatar_url: z
+      .string()
+      .trim()
+      .max(2048)
+      .refine((v) => v === "" || /^https?:\/\/\S+$/i.test(v), "Use an http(s) URL, or an empty string to remove the avatar.")
+      .optional()
+      .describe("URL to an avatar image (http or https), or an empty string to remove it."),
   },
   annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   handler: async (input, ctx) => {

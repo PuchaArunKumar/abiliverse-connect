@@ -3,12 +3,15 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 type FontSize = "sm" | "md" | "lg" | "xl";
 type Toggleable = "highContrast" | "dyslexiaFont" | "reduceMotion" | "underlineLinks";
 
-interface A11yState {
+interface Preferences {
   highContrast: boolean;
   dyslexiaFont: boolean;
   reduceMotion: boolean;
   underlineLinks: boolean;
   fontSize: FontSize;
+}
+
+interface A11yState extends Preferences {
   toggle: (k: Toggleable) => void;
   setFontSize: (s: FontSize) => void;
   reset: () => void;
@@ -16,38 +19,55 @@ interface A11yState {
 }
 
 const Ctx = createContext<A11yState | null>(null);
+
+// The inline script in index.html reads the same key with the same validation,
+// so saved preferences apply before the first paint. Change both together.
 const KEY = "abilitiverse-a11y";
 
-const DEFAULTS = {
+const FONT_SIZES: readonly FontSize[] = ["sm", "md", "lg", "xl"];
+
+const DEFAULTS: Preferences = {
   highContrast: false,
   dyslexiaFont: false,
   reduceMotion: false,
   underlineLinks: false,
-  fontSize: "md" as FontSize,
+  fontSize: "md",
 };
 
-export const AccessibilityProvider = ({ children }: { children: ReactNode }) => {
-  const [highContrast, setHC] = useState(DEFAULTS.highContrast);
-  const [dyslexiaFont, setDF] = useState(DEFAULTS.dyslexiaFont);
-  const [reduceMotion, setRM] = useState(DEFAULTS.reduceMotion);
-  const [underlineLinks, setUL] = useState(DEFAULTS.underlineLinks);
-  const [fontSize, setFontSize] = useState<FontSize>(DEFAULTS.fontSize);
+function isFontSize(value: unknown): value is FontSize {
+  return FONT_SIZES.includes(value as FontSize);
+}
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) {
-        const s = JSON.parse(raw);
-        setHC(!!s.highContrast);
-        setDF(!!s.dyslexiaFont);
-        setRM(!!s.reduceMotion);
-        setUL(!!s.underlineLinks);
-        if (s.fontSize) setFontSize(s.fontSize);
-      }
-    } catch {
-      // Stored preferences unreadable (private mode, cleared storage): keep defaults.
-    }
-  }, []);
+/**
+ * Read once, synchronously, as the initial state. Loading in an effect instead
+ * rendered one frame at the defaults (a flash of low contrast and a layout jump
+ * for anyone on large text) and wrote those defaults back over the saved values
+ * before they arrived. Anything unrecognised falls back to the default rather
+ * than leaving a font size no stylesheet rule matches.
+ */
+function readStored(): Preferences {
+  try {
+    const raw = localStorage.getItem(KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object") return DEFAULTS;
+    const s = parsed as Record<string, unknown>;
+    return {
+      highContrast: s.highContrast === true,
+      dyslexiaFont: s.dyslexiaFont === true,
+      reduceMotion: s.reduceMotion === true,
+      underlineLinks: s.underlineLinks === true,
+      fontSize: isFontSize(s.fontSize) ? s.fontSize : DEFAULTS.fontSize,
+    };
+  } catch {
+    // Stored preferences unreadable (private mode, blocked or corrupt
+    // storage): keep defaults.
+    return DEFAULTS;
+  }
+}
+
+export const AccessibilityProvider = ({ children }: { children: ReactNode }) => {
+  const [prefs, setPrefs] = useState<Preferences>(readStored);
+  const { highContrast, dyslexiaFont, reduceMotion, underlineLinks, fontSize } = prefs;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -76,18 +96,16 @@ export const AccessibilityProvider = ({ children }: { children: ReactNode }) => 
   }, [highContrast, dyslexiaFont, reduceMotion, underlineLinks, fontSize]);
 
   const toggle = (k: Toggleable) => {
-    if (k === "highContrast") setHC((v) => !v);
-    if (k === "dyslexiaFont") setDF((v) => !v);
-    if (k === "reduceMotion") setRM((v) => !v);
-    if (k === "underlineLinks") setUL((v) => !v);
+    setPrefs((p) => ({ ...p, [k]: !p[k] }));
+  };
+
+  const setFontSize = (s: FontSize) => {
+    if (!isFontSize(s)) return;
+    setPrefs((p) => ({ ...p, fontSize: s }));
   };
 
   const reset = () => {
-    setHC(DEFAULTS.highContrast);
-    setDF(DEFAULTS.dyslexiaFont);
-    setRM(DEFAULTS.reduceMotion);
-    setUL(DEFAULTS.underlineLinks);
-    setFontSize(DEFAULTS.fontSize);
+    setPrefs(DEFAULTS);
   };
 
   const isDefault =

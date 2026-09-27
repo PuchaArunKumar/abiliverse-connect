@@ -8,23 +8,23 @@ import { Link } from "react-router-dom";
 const built = [
   {
     title: "Four text sizes",
-    body: "Small through extra large, applied across the whole interface and remembered on your device.",
+    body: "Small through extra large, scaled from your browser's own text size, applied across the whole interface and remembered on your device.",
   },
   {
     title: "High contrast mode",
-    body: "Stronger colours and borders, switchable at any time from the toolbar.",
+    body: "Stronger colours and borders, switchable at any time from the header.",
   },
   {
     title: "Reduced motion",
-    body: "Honours your system setting, and can be forced on independently of it.",
+    body: "Honours your device's reduced-motion setting, and can be switched on here even if your device is not set to it.",
   },
   {
     title: "Dyslexia-friendly type",
-    body: "Rounder letterforms with wider spacing, as an alternative to the default face.",
+    body: "An option to switch to Lexend, with wider letter and word spacing, as an alternative to the default face.",
   },
   {
     title: "Keyboard navigation",
-    body: "Every control is reachable and operable without a mouse, with visible focus rings.",
+    body: "Built to be used without a mouse, with a visible focus ring and a skip link past the navigation.",
   },
   {
     title: "Hyperlegible by default",
@@ -49,7 +49,7 @@ const AccessibilityCommitment = () => {
           <p className="mt-3 leading-relaxed text-muted-foreground">
             A platform about assistive technology has no business being hard to
             use. These are built in, not bolted on — open the accessibility
-            control in the toolbar to change any of them.
+            control in the header to change any of them.
           </p>
           <Link
             to="/accessibility-statement"

@@ -33,7 +33,7 @@ handles, or if graph traversals routinely exceed three hops.
 
 ## Milestones
 
-### 1. Problem repository — shipped
+### 1. Problem repository — built; migrations pending
 
 Structured problem reports with disability type, category, country, age group,
 severity, tags and existing solutions. Voting, private bookmarks, comments,
@@ -41,8 +41,14 @@ moderation reports, and automatic version history. Weighted full-text search
 over title, description and tags. Duplicate candidates surface live while a
 report is being written.
 
-Also here: role-based access control (`user_roles` + `has_role()`), and public
-read access so the catalogue is reachable without an account.
+Also here: role-based access control (`user_roles`, checked through
+`is_admin()` / `is_moderator()`), public read access so the catalogue is
+reachable without an account, editing and deletion by the author or a
+moderator, and uploaded photos, video and PDFs with required text
+alternatives.
+
+The code is complete; it goes live when the pending migrations are applied
+(see `DEPLOYMENT.md`). Until then the pages say the feature is being set up.
 
 ### 2. Profile depth and identity
 
@@ -56,6 +62,13 @@ carrying structured data rather than three free-text fields.
 Enable `pgvector`, add an `embedding` column to `problems`, and backfill via an
 edge function. Blend lexical rank with vector distance in `search_problems`.
 The call site in the report form does not change — only the ranking behind it.
+
+### Pitch platform and Companion — built; migrations pending
+
+Pitches with community support and feedback and private interest requests
+from funders and mentors (introductions only; no payments). Companion: private
+step-by-step routines, streaks, in-page reminders and a calendar export — a
+structured tool rather than the AI assistant of milestone 8.
 
 ### 4. Solutions registry
 
@@ -99,18 +112,34 @@ queue (the `problem_reports` table and `is_moderator()` already exist).
   policies are the only thing protecting data. Never put a service-role key in
   `.env`.
 - **Roles never live on `profiles`.** A policy on `profiles` that reads
-  `profiles` recurses infinitely. Check roles through `has_role()`, which is
-  `SECURITY DEFINER`.
+  `profiles` recurses infinitely. Policies check roles through `is_admin()` and
+  `is_moderator()`, which are `SECURITY DEFINER`. `has_role()` is internal:
+  the API roles cannot call it, so a policy that calls it directly fails for
+  signed-in users.
 - **Counter and history triggers must be `SECURITY DEFINER`.** The voter is not
   the problem owner, so an owner-scoped `UPDATE` policy would otherwise reject
   the counter write.
+- **Revoke before granting.** Supabase grants `ALL` on every new `public`
+  table to `anon` and `authenticated`. Start each table's grants with
+  `REVOKE ALL ... FROM anon, authenticated`, and grant writable columns
+  explicitly so counters, timestamps and owners stay database-controlled.
+- **Every new table gets the two-factor policies** from
+  `20260927090300_require_mfa_when_enrolled.sql`, and that migration's final
+  check fails if one is missing.
+- **Run `npm run test:db` after touching a migration**, and add a case to
+  `src/test/db/rls.test.ts` for any new rule.
 
 ## Known gaps
 
-- `Pitches` and `Companion` are placeholder pages.
-- No media upload yet: `image_urls`, `video_urls` and `document_urls` accept
-  URLs but there is no Storage bucket or upload UI.
-- Lint errors predating this work remain in `Feed.tsx`, `Opportunities.tsx` and
-  `tailwind.config.ts`.
-- The production bundle is ~690 kB; route-level code splitting is worth doing
-  before launch.
+- Ten migrations are written and tested but not yet applied to the live
+  database (`DEPLOYMENT.md` lists them).
+- There is no moderation queue UI yet: reports are stored in
+  `problem_reports` and are readable by moderators, but reviewing them happens
+  in the SQL editor until the admin console (milestone 9).
+- Deleting a problem removes its media rows, but Storage objects orphaned by a
+  cascade (for example when an account is deleted) are cleaned up by hand.
+- Contact-form messages are stored in `contact_messages` and read from the SQL
+  editor; nothing emails them on.
+- Companion reminders fire only while the page is open; the calendar export
+  covers the rest. Push notifications would need a service worker and a
+  server-side scheduler.

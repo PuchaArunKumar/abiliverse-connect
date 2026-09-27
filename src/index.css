@@ -1,6 +1,9 @@
 /* Must stay first: CSS requires @import before any other statement, and when it
    followed the @tailwind directives the font never loaded. */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+/* Lexend backs the dyslexia-friendly mode. Browsers fetch a face only when
+   something renders in it, so visitors who never switch the mode on do not
+   download it. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -41,7 +44,10 @@
     --destructive-foreground: 0 0% 100%;
 
     --border: 214 32% 91%;          /* #E2E8F0 */
-    --input: 214 25% 80%;
+    /* Input borders, outline buttons and the off state of switches. These are
+       the only visible edge of the control, so they need 3:1 (WCAG 1.4.11);
+       the previous #BFCAD9 was 1.58:1. */
+    --input: 215 16% 47%;           /* #65758B, 4.49:1 on the ground */
     --ring: 221 83% 40%;
 
     /* One blue for interactive text and icons. Buttons are told apart from
@@ -88,7 +94,7 @@
     --destructive: 0 62% 36%;
     --destructive-foreground: 0 0% 100%;
     --border: 220 26% 21%;
-    --input: 220 22% 30%;
+    --input: 215 16% 47%;           /* #65758B, 4.10:1 here (was 2.07:1) */
     --ring: 215 90% 76%;
     --action: 215 90% 76%;
     --action-foreground: 222 47% 7%;
@@ -127,9 +133,11 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Skip to content link */
+  /* Skip to content link. Above the sticky header (z-50): at an equal
+     z-index the header wins by coming later in the DOM, and the focused link
+     sat invisibly underneath it. */
   .skip-link {
-    @apply absolute left-4 top-4 z-50 -translate-y-20 rounded-md bg-primary px-4 py-2 text-primary-foreground transition-transform focus:translate-y-0;
+    @apply absolute left-4 top-4 z-[60] -translate-y-20 rounded-md bg-primary px-4 py-2 text-primary-foreground transition-transform focus:translate-y-0;
   }
 }
 
@@ -148,6 +156,7 @@ html.a11y-contrast {
   --primary: 213 90% 12%;
   --primary-foreground: 0 0% 100%;
   --border: 0 0% 0%;
+  --input: 0 0% 0%;
   --muted-foreground: 0 0% 15%;
   --accent: 214 40% 88%;
   --accent-foreground: 0 0% 0%;
@@ -163,24 +172,48 @@ html.dark.a11y-contrast {
   --card: 0 0% 4%;
   --card-foreground: 0 0% 100%;
   --primary: 215 100% 82%;
+  /* Without these, the white foregrounds from html.a11y-contrast above beat
+     .dark on specificity and put white text on light blue (1.70:1). */
+  --primary-foreground: 0 0% 0%;
   --border: 0 0% 100%;
+  --input: 0 0% 70%;
   --muted-foreground: 0 0% 90%;
   --accent: 220 30% 22%;
   --accent-foreground: 0 0% 100%;
   --action: 215 100% 82%;
+  --action-foreground: 0 0% 0%;
   --link: 215 100% 82%;
   --ring: 215 100% 82%;
 }
+/* The font-heading and font-body utilities set their own family, so they are
+   listed too; otherwise logos, stats and feature titles kept the default face.
+   Lexend is a webfont so the mode looks the same on every platform: the
+   previous local-only stack fell back to system-ui on Android and Linux. */
 html.a11y-dyslexia body,
 html.a11y-dyslexia h1,
 html.a11y-dyslexia h2,
 html.a11y-dyslexia h3,
 html.a11y-dyslexia h4,
 html.a11y-dyslexia h5,
-html.a11y-dyslexia h6 {
-  font-family: 'Comic Sans MS', 'Comic Sans', 'Trebuchet MS', system-ui, sans-serif !important;
+html.a11y-dyslexia h6,
+html.a11y-dyslexia .font-heading,
+html.a11y-dyslexia .font-body {
+  font-family: 'Lexend', 'Comic Sans MS', 'Trebuchet MS', system-ui, sans-serif !important;
   letter-spacing: 0.02em;
   word-spacing: 0.08em;
+}
+/* Reduced motion: the operating system setting always applies, and the
+   toggle in the accessibility panel forces it on for anyone who has not set
+   it there (or cannot). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 html.a11y-reduce-motion *,
 html.a11y-reduce-motion *::before,
@@ -190,10 +223,22 @@ html.a11y-reduce-motion *::after {
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
 }
-html[data-font-size="sm"] { font-size: 14px; }
-html[data-font-size="md"] { font-size: 16px; }
-html[data-font-size="lg"] { font-size: 18px; }
-html[data-font-size="xl"] { font-size: 20px; }
+
+/* Percentages, not pixels: a fixed 16px replaced the text size the reader set
+   in their browser, so someone who had chosen 24px got smaller text here than
+   anywhere else, even at "Extra large". These scale from their setting. */
+html[data-font-size="sm"] { font-size: 87.5%; }
+html[data-font-size="md"] { font-size: 100%; }
+html[data-font-size="lg"] { font-size: 112.5%; }
+html[data-font-size="xl"] { font-size: 125%; }
+
+/* A link inside a sentence is told apart from the words around it only by
+   colour unless it is underlined, and the link blue against body slate is
+   about 1.1:1 (WCAG 1.4.1). Always underline those. */
+main p a:not([role="button"]) {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
 
 /* Underline links: colour alone is not a reliable signal for anyone with a
    colour vision deficiency, so this marks every in-content link with a border

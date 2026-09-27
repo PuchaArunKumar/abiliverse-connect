@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      companion_completions: {
+        Row: {
+          completed_on: string
+          created_at: string
+          routine_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_on: string
+          created_at?: string
+          routine_id: string
+          user_id: string
+        }
+        Update: {
+          completed_on?: string
+          created_at?: string
+          routine_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      companion_routines: {
+        Row: {
+          active: boolean
+          created_at: string
+          days: number[]
+          id: string
+          notes: string
+          remind_at: string | null
+          steps: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          days?: number[]
+          id?: string
+          notes?: string
+          remind_at?: string | null
+          steps?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          days?: number[]
+          id?: string
+          notes?: string
+          remind_at?: string | null
+          steps?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          topic: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          topic?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          topic?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -184,6 +274,150 @@ export type Database = {
         }
         Relationships: []
       }
+      pitch_feedback: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          pitch_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind?: string
+          pitch_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          pitch_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pitch_interests: {
+        Row: {
+          contact: string
+          created_at: string
+          id: string
+          message: string
+          offering: Database["public"]["Enums"]["pitch_need"]
+          pitch_id: string
+          user_id: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          id?: string
+          message: string
+          offering: Database["public"]["Enums"]["pitch_need"]
+          pitch_id: string
+          user_id: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          id?: string
+          message?: string
+          offering?: Database["public"]["Enums"]["pitch_need"]
+          pitch_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pitch_supports: {
+        Row: {
+          created_at: string
+          pitch_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          pitch_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          pitch_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pitches: {
+        Row: {
+          created_at: string
+          demo_url: string
+          description: string
+          disability_types: Database["public"]["Enums"]["disability_type"][]
+          feedback_count: number
+          funding_currency: string
+          funding_goal: number | null
+          id: string
+          is_open: boolean
+          needs: Database["public"]["Enums"]["pitch_need"][]
+          problem_id: string | null
+          search_vector: unknown | null
+          stage: Database["public"]["Enums"]["pitch_stage"]
+          support_count: number
+          tagline: string
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+          website_url: string
+        }
+        Insert: {
+          created_at?: string
+          demo_url?: string
+          description: string
+          disability_types?: Database["public"]["Enums"]["disability_type"][]
+          feedback_count?: number
+          funding_currency?: string
+          funding_goal?: number | null
+          id?: string
+          is_open?: boolean
+          needs?: Database["public"]["Enums"]["pitch_need"][]
+          problem_id?: string | null
+          search_vector?: never
+          stage?: Database["public"]["Enums"]["pitch_stage"]
+          support_count?: number
+          tagline: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          user_id: string
+          website_url?: string
+        }
+        Update: {
+          created_at?: string
+          demo_url?: string
+          description?: string
+          disability_types?: Database["public"]["Enums"]["disability_type"][]
+          feedback_count?: number
+          funding_currency?: string
+          funding_goal?: number | null
+          id?: string
+          is_open?: boolean
+          needs?: Database["public"]["Enums"]["pitch_need"][]
+          problem_id?: string | null
+          search_vector?: never
+          stage?: Database["public"]["Enums"]["pitch_stage"]
+          support_count?: number
+          tagline?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
+          website_url?: string
+        }
+        Relationships: []
+      }
       post_comments: {
         Row: {
           body: string
@@ -308,6 +542,45 @@ export type Database = {
         }
         Relationships: []
       }
+      problem_media: {
+        Row: {
+          created_at: string
+          description: string
+          file_name: string
+          id: string
+          kind: Database["public"]["Enums"]["media_kind"]
+          mime_type: string
+          problem_id: string
+          size_bytes: number
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          file_name: string
+          id?: string
+          kind: Database["public"]["Enums"]["media_kind"]
+          mime_type: string
+          problem_id: string
+          size_bytes: number
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          file_name?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["media_kind"]
+          mime_type?: string
+          problem_id?: string
+          size_bytes?: number
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       problem_reports: {
         Row: {
           created_at: string
@@ -394,7 +667,7 @@ export type Database = {
           id: string
           image_urls: string[]
           related_research: string[]
-          search_vector: unknown
+          search_vector: unknown | null
           severity: Database["public"]["Enums"]["severity_level"] | null
           status: Database["public"]["Enums"]["problem_status"]
           tags: string[]
@@ -506,15 +779,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      /**
+       * Internal to the database: not executable by anon or authenticated, so
+       * calling it through the API fails. Use is_admin() / is_moderator().
+       */
       has_role: {
         Args: { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
+      }
+      /**
+       * Helper behind the search_vector columns and a CHECK on
+       * companion_routines. Callable because those expressions run with the
+       * writer's privileges; there is no reason to call it from the app.
+       */
+      immutable_array_to_string: {
+        Args: { _arr: string[]; _sep: string }
+        Returns: string
       }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_moderator: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      mfa_satisfied: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
@@ -538,6 +828,14 @@ export type Database = {
           created_at: string
           rank: number
         }[]
+      }
+      send_contact_message: {
+        Args: { _name: string; _email: string; _topic: string; _message: string }
+        Returns: undefined
+      }
+      subscribe_to_newsletter: {
+        Args: { _email: string }
+        Returns: undefined
       }
     }
     Enums: {
@@ -578,6 +876,15 @@ export type Database = {
         | "mental_health"
         | "multiple"
         | "other"
+      media_kind: "image" | "video" | "document"
+      pitch_need:
+        | "funding"
+        | "mentorship"
+        | "cofounder"
+        | "testers"
+        | "partners"
+        | "feedback"
+      pitch_stage: "idea" | "prototype" | "pilot" | "launched"
       problem_status: "open" | "in_progress" | "solved" | "archived"
       severity_level: "mild" | "moderate" | "severe" | "profound"
     }
@@ -747,6 +1054,16 @@ export const Constants = {
         "multiple",
         "other",
       ],
+      media_kind: ["image", "video", "document"],
+      pitch_need: [
+        "funding",
+        "mentorship",
+        "cofounder",
+        "testers",
+        "partners",
+        "feedback",
+      ],
+      pitch_stage: ["idea", "prototype", "pilot", "launched"],
       problem_status: ["open", "in_progress", "solved", "archived"],
       severity_level: ["mild", "moderate", "severe", "profound"],
     },

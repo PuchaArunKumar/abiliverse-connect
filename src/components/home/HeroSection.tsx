@@ -10,13 +10,6 @@ import { ArrowRight, Check } from "lucide-react";
  * reads as credible by *restraining* colour to controls and accents and
  * leading with information rather than a pitch.
  */
-
-const assurances = [
-  "Free to join",
-  "Built to WCAG 2.1 AA",
-  "Open to everyone",
-];
-
 const HeroSection = () => {
   return (
     <section
@@ -55,23 +48,31 @@ const HeroSection = () => {
               variant="outline"
               className="min-h-12 text-base font-semibold"
             >
-              <Link to="/problems">Browse the community</Link>
+              <Link to="/problems">Browse problems</Link>
             </Button>
           </div>
 
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2" role="list">
-            {assurances.map((item) => (
-              <li
-                key={item}
-                className="flex items-center gap-2 text-sm text-muted-foreground"
+            <li className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Check className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
+              Free to join
+            </li>
+            <li className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Check className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
+              Open to everyone
+            </li>
+            {/* "Aiming for", not "Built to": the statement lists what is not
+                yet verified, and a checkmarked conformance claim here would
+                contradict it. */}
+            <li className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Check className="h-4 w-4 shrink-0 text-action" aria-hidden="true" />
+              <Link
+                to="/accessibility-statement"
+                className="inline-flex min-h-11 items-center text-link underline underline-offset-2 hover:no-underline"
               >
-                <Check
-                  className="h-4 w-4 shrink-0 text-action"
-                  aria-hidden="true"
-                />
-                {item}
-              </li>
-            ))}
+                Aiming for WCAG 2.1 AA
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -104,8 +105,8 @@ const HeroSection = () => {
             ))}
           </ul>
           <p className="mt-6 border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground">
-            Nothing here is built <em>for</em> disabled people without them.
-            Problems are documented by the people living them.
+            Anyone with an account can document a barrier: one they live with,
+            or one they see someone they support run into.
           </p>
         </div>
       </div>

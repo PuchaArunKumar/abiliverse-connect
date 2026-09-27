@@ -26,7 +26,7 @@ const destinations: Destination[] = [
     description:
       "Roles at organisations building assistive technology, and employers who take access seriously.",
     table: "jobs",
-    unit: "open",
+    unit: "listed",
   },
   {
     href: "/learn",
@@ -123,7 +123,10 @@ const PlatformDirectory = () => {
               <li key={d.href} className="bg-card">
                 <Link
                   to={d.href}
-                  className="group flex h-full flex-col p-6 transition-colors hover:bg-secondary/60 focus-visible:bg-secondary/60"
+                  // ring-inset: an outer ring is clipped by the list's
+                  // overflow-hidden and painted over by the next card, which
+                  // left a focused card with no visible indicator at all.
+                  className="group flex h-full flex-col p-6 transition-colors hover:bg-secondary/60 focus-visible:bg-secondary/60 focus-visible:ring-inset focus-visible:ring-offset-0"
                 >
                   <div className="flex items-baseline justify-between gap-3">
                     <h3 className="font-heading text-base font-semibold text-foreground">
