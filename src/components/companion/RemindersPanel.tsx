@@ -50,7 +50,7 @@ function statusFor(permission: Permission): string {
     case "unsupported":
       return "Reminders are on. This browser cannot show notifications, so reminders will appear on this page instead, while it is open.";
     default:
-      return "Reminders are on, and will appear on this page while it is open. Allow notifications when your browser asks to see them outside the page too.";
+      return "Reminders are on, and will appear on this page while it is open. To get them as notifications too, choose Allow notifications.";
   }
 }
 
@@ -116,8 +116,9 @@ const RemindersPanel = ({ routines, done }: RemindersPanelProps) => {
     [],
   );
 
-  const turnOn = async () => {
-    if (asking) return;
+  // Browsers only show the permission prompt in response to a click, so this
+  // runs from a button: Turn on reminders, or Allow notifications later.
+  const askPermission = async (): Promise<Permission> => {
     let result = currentPermission();
     if (result === "default") {
       setAsking(true);
@@ -130,8 +131,19 @@ const RemindersPanel = ({ routines, done }: RemindersPanelProps) => {
       setAsking(false);
     }
     setPermission(result);
+    return result;
+  };
+
+  const turnOn = async () => {
+    if (asking) return;
+    await askPermission();
     setEnabled(true);
     storePreference(true);
+  };
+
+  const allowNotifications = async () => {
+    if (asking) return;
+    await askPermission();
   };
 
   const turnOff = () => {
@@ -195,12 +207,25 @@ const RemindersPanel = ({ routines, done }: RemindersPanelProps) => {
             about.
           </p>
         )}
-        <div className="mt-4">
+        <div className="mt-4 flex flex-wrap gap-3">
           {enabled ? (
-            <Button type="button" variant="outline" className="min-h-11" onClick={turnOff}>
-              <BellOff aria-hidden="true" />
-              Turn off reminders
-            </Button>
+            <>
+              {permission === "default" && (
+                <Button
+                  type="button"
+                  className="min-h-11"
+                  onClick={allowNotifications}
+                  aria-disabled={asking || undefined}
+                >
+                  <Bell aria-hidden="true" />
+                  Allow notifications
+                </Button>
+              )}
+              <Button type="button" variant="outline" className="min-h-11" onClick={turnOff}>
+                <BellOff aria-hidden="true" />
+                Turn off reminders
+              </Button>
+            </>
           ) : (
             <Button
               type="button"

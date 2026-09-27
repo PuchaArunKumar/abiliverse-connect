@@ -14,6 +14,7 @@ import {
   type PitchDetailRow,
   type PitchInterest,
 } from "@/lib/pitches";
+import { useFocusAfterReload } from "@/hooks/useFocusAfterReload";
 
 interface InterestPanelProps {
   pitch: Pick<PitchDetailRow, "id" | "user_id" | "is_open" | "needs">;
@@ -33,6 +34,7 @@ const InterestPanel = ({ pitch, userId }: InterestPanelProps) => {
   const [announcement, setAnnouncement] = useState("");
   const [reloadTick, setReloadTick] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const focusAfterReload = useFocusAfterReload(state === "loading", headingRef);
   const sentRef = useRef<HTMLParagraphElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const pendingFocus = useRef<"sent" | "trigger" | null>(null);
@@ -149,7 +151,14 @@ const InterestPanel = ({ pitch, userId }: InterestPanelProps) => {
           <p className="text-sm font-medium text-destructive">
             We could not check whether you have already sent interest.
           </p>
-          <Button variant="outline" className="min-h-11" onClick={() => setReloadTick((t) => t + 1)}>
+          <Button
+            variant="outline"
+            className="min-h-11"
+            onClick={() => {
+              focusAfterReload();
+              setReloadTick((t) => t + 1);
+            }}
+          >
             Try again
           </Button>
         </div>

@@ -418,6 +418,9 @@ describe("nextReminder", () => {
     expect(describeWhen(d("2026-09-25", 8), now, "en-US")).toMatch(/^today at 8:00\sAM$/);
     expect(describeWhen(d("2026-09-26", 8), now, "en-US")).toMatch(/^tomorrow at 8:00\sAM$/);
     expect(describeWhen(d("2026-09-28", 8), now, "en-US")).toMatch(/^on Monday at 8:00\sAM$/);
+    // 2026-09-25 is a Friday; a week later is also a Friday, and "on Friday"
+    // would read as today.
+    expect(describeWhen(d("2026-10-02", 6), now, "en-US")).toMatch(/^next Friday at 6:00\sAM$/);
   });
 });
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import { Loader2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ import {
   type FeedbackKind,
   type PitchFeedback,
 } from "@/lib/pitches";
+import { useFocusAfterReload } from "@/hooks/useFocusAfterReload";
 
 const FEEDBACK_COLUMNS = "id, pitch_id, user_id, kind, body, created_at";
 
@@ -61,6 +63,7 @@ const FeedbackSection = ({ pitchId, userId, isModerator, onChanged }: FeedbackSe
   const [announcement, setAnnouncement] = useState("");
   const postingRef = useRef(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const focusAfterReload = useFocusAfterReload(state === "loading", headingRef);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -101,7 +104,8 @@ const FeedbackSection = ({ pitchId, userId, isModerator, onChanged }: FeedbackSe
     setPostError(null);
     const invalid = validateFeedback(body);
     if (invalid) {
-      setBodyError(invalid);
+      // Rendered first, so focusing the field announces the error with it.
+      flushSync(() => setBodyError(invalid));
       bodyRef.current?.focus();
       return;
     }
@@ -246,7 +250,10 @@ const FeedbackSection = ({ pitchId, userId, isModerator, onChanged }: FeedbackSe
           <Button
             variant="outline"
             className="min-h-11"
-            onClick={() => setReloadTick((t) => t + 1)}
+            onClick={() => {
+              focusAfterReload();
+              setReloadTick((t) => t + 1);
+            }}
           >
             Try again
           </Button>

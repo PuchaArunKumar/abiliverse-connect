@@ -36,6 +36,7 @@ import {
   type ProblemScope,
   type ProblemStatus,
 } from "@/lib/problems";
+import { useFocusAfterReload } from "@/hooks/useFocusAfterReload";
 
 type ListedProblem = Pick<
   Problem,
@@ -91,6 +92,8 @@ const Problems = () => {
   const savedIds = useRef<string[] | null>(null);
   const loadingMoreRef = useRef(false);
   const listRef = useRef<HTMLUListElement>(null);
+  const h1Ref = useRef<HTMLHeadingElement>(null);
+  const focusAfterReload = useFocusAfterReload(phase === "loading", h1Ref);
   const focusIndex = useRef<number | null>(null);
 
   useEffect(() => {
@@ -256,7 +259,11 @@ const Problems = () => {
       <section className="container max-w-5xl py-8">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="font-heading text-3xl font-bold text-foreground">
+            <h1
+              ref={h1Ref}
+              tabIndex={-1}
+              className="font-heading text-3xl font-bold text-foreground focus:outline-none"
+            >
               Problem repository
             </h1>
             <p className="mt-1 max-w-2xl text-muted-foreground">
@@ -409,7 +416,10 @@ const Problems = () => {
                 <Button
                   variant="outline"
                   className="mt-4 min-h-11"
-                  onClick={() => setReloadKey((k) => k + 1)}
+                  onClick={() => {
+                    focusAfterReload();
+                    setReloadKey((k) => k + 1);
+                  }}
                 >
                   <RotateCw className="mr-1 h-4 w-4" aria-hidden="true" />
                   Try again

@@ -15,6 +15,7 @@ import {
   pluralise,
   type PitchInterest,
 } from "@/lib/pitches";
+import { useFocusAfterReload } from "@/hooks/useFocusAfterReload";
 
 interface InterestInboxProps {
   pitchId: string;
@@ -34,6 +35,7 @@ const InterestInbox = ({ pitchId, isOpen }: InterestInboxProps) => {
   const [announcement, setAnnouncement] = useState("");
   const [reloadTick, setReloadTick] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const focusAfterReload = useFocusAfterReload(state === "loading", headingRef);
 
   useEffect(() => {
     let active = true;
@@ -111,7 +113,10 @@ const InterestInbox = ({ pitchId, isOpen }: InterestInboxProps) => {
           <Button
             variant="outline"
             className="min-h-11"
-            onClick={() => setReloadTick((t) => t + 1)}
+            onClick={() => {
+              focusAfterReload();
+              setReloadTick((t) => t + 1);
+            }}
           >
             Try again
           </Button>

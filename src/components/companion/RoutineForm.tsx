@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -135,22 +136,25 @@ const RoutineFormBody = ({ routine, onSave, saving, setSaving, onCancel }: Routi
     e.preventDefault();
     if (savingRef.current) return;
     const result = validateRoutine(draft);
-    setErrors(result.errors);
-    setServerError(null);
-
     const invalid = ROUTINE_FIELDS.filter((f) => result.errors[f]);
-    if (invalid.length > 0) {
-      // Focus lands on the first field to fix, which reads out its own error;
-      // the polite summary follows, so nobody wonders whether there are more.
+    // Render the errors before focus moves: the first field to fix is then
+    // already invalid and described by its error when it is announced, and
+    // the polite summary follows, so nobody wonders whether there are more.
+    flushSync(() => {
+      setErrors(result.errors);
+      setServerError(null);
       setSummary(
-        invalid.length === 1
-          ? "One thing needs changing before this can be saved."
-          : `${invalid.length} things need changing before this can be saved.`,
+        invalid.length === 0
+          ? ""
+          : invalid.length === 1
+            ? "One thing needs changing before this can be saved."
+            : `${invalid.length} things need changing before this can be saved.`,
       );
+    });
+    if (invalid.length > 0) {
       focusField(invalid[0]);
       return;
     }
-    setSummary("");
 
     savingRef.current = true;
     setSaving(true);

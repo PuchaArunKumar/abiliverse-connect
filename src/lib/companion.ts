@@ -438,6 +438,9 @@ export function describeWhen(at: Date, now: Date, locale?: string): string {
   const diff = localDayNumber(at) - localDayNumber(now);
   if (diff === 0) return `today at ${time}`;
   if (diff === 1) return `tomorrow at ${time}`;
+  // A week or more ahead, the bare weekday would name today: "on Sunday"
+  // read on a Sunday sounds like later today.
+  if (diff >= 7) return `next ${DAY_NAMES[at.getDay()]} at ${time}`;
   return `on ${DAY_NAMES[at.getDay()]} at ${time}`;
 }
 
