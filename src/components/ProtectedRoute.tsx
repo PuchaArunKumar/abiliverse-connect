@@ -1,19 +1,19 @@
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import PageLoading from "@/components/PageLoading";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, mfaRequired } = useAuth();
+  const location = useLocation();
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
-  }
+  if (loading) return <PageLoading />;
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  // Someone who has not finished two-factor sign-in goes to the same place as
+  // someone signed out: the sign-in page shows them the code prompt. The path
+  // is router-relative, so it survives the GitHub Pages base path.
+  if (!user || mfaRequired) {
+    const next = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?next=${next}`} replace />;
   }
 
   return <>{children}</>;
