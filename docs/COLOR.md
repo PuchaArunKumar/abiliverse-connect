@@ -21,9 +21,16 @@ before being adopted. Hex values are the rendered result of the HSL tokens in
 | `--secondary` | `#ECF1F9` | Icon tiles, badges | navy text 13.39:1 | AAA |
 | `--accent` | `#E6ECF4` | Hover and selected surfaces | navy text 12.78:1 | AAA |
 | `--destructive` | `#B81E1E` | Errors, delete | white text 6.48:1 | AA |
+| `--input` | `#65758B` | Input borders, outline buttons, unchecked switch track | 4.49:1 on ground, 4.70:1 on white, 4.41:1 on the `bg-muted/40` newsletter band; switch thumb on track 4.49:1 | Passes 3:1 (1.4.11) |
 | `--background` | `#F8FAFC` | Page ground | — | — |
 
 ## Dark
+
+**Not currently enabled anywhere in the app.** Tailwind uses the `class`
+strategy and nothing adds `dark` to `<html>` (no theme provider or toggle is
+mounted), so no visitor sees these values today. They are kept, and measured,
+so a theme switch can be added without re-deriving the palette; re-check them
+when it is.
 
 Re-measured against the dark ground rather than inverted. Navy is unreadable on
 a dark background, so a light blue carries the brand there.
@@ -34,15 +41,21 @@ a dark background, so a light blue carries the brand there.
 | `--primary` / `--action` / `--link` | `#8BB9F9` | 9.55:1 | AAA |
 | `--muted-foreground` | `#9DABBE` | 8.26:1 | AAA |
 | `--accent` (hover surface) | `#222C3F` | text on it 11.25:1 | AAA |
+| `--input` | `#65758B` | 4.10:1 (3.78:1 on `--card`) | Passes 3:1 (1.4.11) |
 
 ## High contrast mode
 
 Overrides the tokens above, so it is measured separately.
 
-| Mode | `--primary` | `--action` / `--link` |
-| --- | --- | --- |
-| Light, on white | `#031C3A` 17.06:1 | `#0031A3` 10.67:1 |
-| Dark, on black | `#A3C9FF` 12.36:1 | `#A3C9FF` 12.36:1 |
+| Mode | `--primary` | `--action` / `--link` | `--input` |
+| --- | --- | --- | --- |
+| Light, on white | `#031C3A` 17.06:1 | `#0031A3` 10.67:1 | `#000000` 21:1 |
+| Dark, on black | `#A3C9FF` 12.36:1 | `#A3C9FF` 12.36:1 | `#B2B2B2` 9.90:1 |
+
+Dark high contrast sets `--primary-foreground` and `--action-foreground` to
+black: black on `#A3C9FF` is 12.36:1. Without that, the white foregrounds from
+light high contrast won on specificity and filled buttons were white on light
+blue, 1.70:1.
 
 ## Decisions, and what they replaced
 
@@ -61,6 +74,17 @@ hues so a link would not read as a button. Shape does that job better: buttons
 are filled navy blocks, links are blue text. Hue alone is also not a reliable
 signal for anyone with a colour vision deficiency. The tokens stay separate so
 they can diverge again without touching components.
+
+**`--input` is a boundary, not a fill.** It draws the only visible edge of text
+fields and outline buttons, and the track of an unchecked switch, so WCAG 1.4.11
+asks 3:1 of it. It was `#BFCAD9`, 1.58:1 on the ground (2.07:1 in dark), and high
+contrast mode did not override it at all. It is now slate-500 in light and dark,
+and black / light grey in the high contrast modes.
+
+**Links inside sentences are always underlined.** The link blue against the
+slate body text is 1.07:1 (1.42:1 in high contrast), so colour cannot mark them
+(1.4.1). `src/index.css` underlines every link in a paragraph inside `<main>`;
+the optional "underline links" setting extends that to the rest of the page.
 
 **Dark-mode sidebar fix.** `--sidebar-primary-foreground` was white on light
 teal, 2.01:1. It now uses the dark ground, 9.55:1.

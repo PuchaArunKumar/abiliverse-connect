@@ -1,12 +1,14 @@
 import { useState } from "react";
+import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { Accessibility, Link2, RotateCcw, Sun, Type, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription,
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useA11y } from "@/contexts/AccessibilityContext";
+import { cn } from "@/lib/utils";
 
 const sizes = [
   { v: "sm", label: "Small" },
@@ -20,6 +22,11 @@ const AccessibilityPanel = () => {
   const { highContrast, dyslexiaFont, reduceMotion, underlineLinks, fontSize, toggle, setFontSize, reset, isDefault } =
     useA11y();
 
+  const handleFontSize = (value: string) => {
+    const match = sizes.find((s) => s.v === value);
+    if (match) setFontSize(match.v);
+  };
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -32,7 +39,7 @@ const AccessibilityPanel = () => {
           <Accessibility className="h-5 w-5" aria-hidden="true" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader>
           <SheetTitle>Accessibility settings</SheetTitle>
           <SheetDescription>
@@ -56,7 +63,9 @@ const AccessibilityPanel = () => {
               <Label htmlFor="a11y-dys" className="flex items-center gap-2 font-medium">
                 <Type className="h-4 w-4" aria-hidden="true" /> Dyslexia-friendly font
               </Label>
-              <p className="text-sm text-muted-foreground">Rounder shapes, wider letter spacing.</p>
+              <p className="text-sm text-muted-foreground">
+                Switches to the Lexend typeface, with wider letter and word spacing.
+              </p>
             </div>
             <Switch id="a11y-dys" checked={dyslexiaFont} onCheckedChange={() => toggle("dyslexiaFont")} />
           </div>
@@ -66,7 +75,9 @@ const AccessibilityPanel = () => {
               <Label htmlFor="a11y-motion" className="flex items-center gap-2 font-medium">
                 <Zap className="h-4 w-4" aria-hidden="true" /> Reduce motion
               </Label>
-              <p className="text-sm text-muted-foreground">Turn off animations and transitions.</p>
+              <p className="text-sm text-muted-foreground">
+                Turn off animations and transitions. Already applied if your device is set to reduce motion.
+              </p>
             </div>
             <Switch id="a11y-motion" checked={reduceMotion} onCheckedChange={() => toggle("reduceMotion")} />
           </div>
@@ -88,29 +99,47 @@ const AccessibilityPanel = () => {
           </div>
 
           <div>
-            <p className="mb-2 font-medium">Text size</p>
-            <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Text size">
+            <p id="a11y-text-size" className="font-medium">Text size</p>
+            <p id="a11y-text-size-hint" className="mb-2 text-sm text-muted-foreground">
+              Scaled from the text size set in your browser.
+            </p>
+            {/* A real radio group: Tab reaches the chosen size, and the arrow
+                keys move between sizes and select them, which is what the
+                radio role tells a screen reader user to expect. Buttons
+                wearing role="radio" announced that and did neither. */}
+            <RadioGroupPrimitive.Root
+              value={fontSize}
+              onValueChange={handleFontSize}
+              aria-labelledby="a11y-text-size"
+              aria-describedby="a11y-text-size-hint"
+              className="grid grid-cols-2 gap-2"
+            >
               {sizes.map((s) => (
-                <Button
+                <RadioGroupPrimitive.Item
                   key={s.v}
-                  variant={fontSize === s.v ? "default" : "outline"}
-                  onClick={() => setFontSize(s.v)}
-                  role="radio"
-                  aria-checked={fontSize === s.v}
-                  className="min-h-11"
+                  value={s.v}
+                  className={cn(
+                    buttonVariants({ variant: fontSize === s.v ? "default" : "outline" }),
+                    "min-h-11",
+                  )}
                 >
                   {s.label}
-                </Button>
+                </RadioGroupPrimitive.Item>
               ))}
-            </div>
+            </RadioGroupPrimitive.Root>
           </div>
 
           <div className="border-t border-border pt-6">
+            {/* aria-disabled rather than disabled: disabling the button while
+                it has focus (it is the control just pressed) would drop focus
+                out of the panel. */}
             <Button
               variant="outline"
-              onClick={reset}
-              disabled={isDefault}
-              className="min-h-11 w-full"
+              onClick={() => {
+                if (!isDefault) reset();
+              }}
+              aria-disabled={isDefault}
+              className="min-h-11 w-full aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             >
               <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
               Reset to defaults

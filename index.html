@@ -3,20 +3,56 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Abilitiverse — Empowering Assistive Technology Innovation</title>
-    <meta name="description" content="Abilitiverse connects developers, entrepreneurs, investors, mentors, and end users to accelerate innovation in assistive technology." />
+    <!-- Each page replaces this with "<page> — Abilitiverse" (useDocumentTitle);
+         the homepage uses the bare name, so it matches here. -->
+    <title>Abilitiverse</title>
+    <meta name="description" content="A community platform for assistive technology: document the barriers disabled people face, find the people working on them, and discover jobs, courses and opportunities in accessibility." />
     <meta name="author" content="Abilitiverse" />
 
-    <meta property="og:title" content="Abilitiverse — Empowering Assistive Technology Innovation" />
-    <meta property="og:description" content="Connecting the assistive technology community to accelerate innovation and impact." />
-    <meta property="og:type" content="website" />
+    <!-- Root-relative so Vite prefixes the deploy base (GitHub Pages serves
+         the site under /<repo>/, where a bare /favicon.ico would miss). -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Abilitiverse — Empowering Assistive Technology Innovation" />
-    <meta name="twitter:description" content="Connecting the assistive technology community to accelerate innovation and impact." />
+    <meta property="og:title" content="Abilitiverse — the assistive technology community" />
+    <meta property="og:description" content="Document the barriers disabled people face, find the people working on them, and build on work that already exists." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Abilitiverse" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Abilitiverse — the assistive technology community" />
+    <meta name="twitter:description" content="Document the barriers disabled people face, find the people working on them, and build on work that already exists." />
+
+    <script>
+      // Applies saved accessibility preferences before the first paint, so a
+      // returning reader who needs high contrast or large text never sees a
+      // frame without them. Same storage key and validation as
+      // src/contexts/AccessibilityContext.tsx, which takes over once React
+      // mounts; change both together.
+      (function () {
+        try {
+          var saved = JSON.parse(localStorage.getItem("abilitiverse-a11y") || "null");
+          if (!saved || typeof saved !== "object") return;
+          var root = document.documentElement;
+          if (saved.highContrast === true) root.classList.add("a11y-contrast");
+          if (saved.dyslexiaFont === true) root.classList.add("a11y-dyslexia");
+          if (saved.reduceMotion === true) root.classList.add("a11y-reduce-motion");
+          if (saved.underlineLinks === true) root.classList.add("a11y-underline-links");
+          if (["sm", "md", "lg", "xl"].indexOf(saved.fontSize) !== -1) {
+            root.setAttribute("data-font-size", saved.fontSize);
+          }
+        } catch (e) {
+          // Storage blocked or the value is corrupt: render with the defaults.
+        }
+      })();
+    </script>
   </head>
 
   <body>
+    <noscript>
+      Abilitiverse needs JavaScript to run. If you cannot turn it on, you can
+      reach us at puchaarunkumar@gmail.com.
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

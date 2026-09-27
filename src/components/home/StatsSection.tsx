@@ -22,22 +22,31 @@ const LABELS: { key: keyof Stats; label: string }[] = [
  * impacted"). The section now renders nothing until there is something true to
  * report, which is the correct state for a platform that has not launched: an
  * empty stats bar is honest, an invented one is not.
+ *
+ * Any error hides the section too. In particular, while public_stats has not
+ * been deployed the call fails, and printing zeros then would present a
+ * missing function as a platform with no members.
  */
 const StatsSection = () => {
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     supabase
       .rpc("public_stats")
       .single()
       .then(({ data, error }) => {
-        if (!error && data) setStats(data as Stats);
+        if (cancelled || error || !data) return;
+        setStats(data as Stats);
       });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!stats) return null;
 
-  const shown = LABELS.filter(({ key }) => stats[key] > 0);
+  const shown = LABELS.filter(({ key }) => Number(stats[key]) > 0);
   if (shown.length === 0) return null;
 
   return (
@@ -49,7 +58,7 @@ const StatsSection = () => {
         {shown.map(({ key, label }) => (
           <p key={key} className="text-sm text-muted-foreground">
             <span className="font-heading text-lg font-bold text-foreground">
-              {stats[key].toLocaleString()}
+              {Number(stats[key]).toLocaleString()}
             </span>{" "}
             {label}
           </p>
