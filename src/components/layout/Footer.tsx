@@ -38,6 +38,7 @@ const Footer = () => {
               <li><Link to="/feed" className={linkClass}>Community Feed</Link></li>
               <li><Link to="/connect" className={linkClass}>Connect</Link></li>
               <li><Link to="/pitches" className={linkClass}>Pitch Platform</Link></li>
+              <li><Link to="/radar" className={linkClass}>Opportunity Radar</Link></li>
               <li><Link to="/companion" className={linkClass}>Companion</Link></li>
             </ul>
           </div>
@@ -58,7 +59,7 @@ const Footer = () => {
             </h2>
             <div className="mb-2 flex gap-3">
               <a
-                href="https://www.linkedin.com/in/pucha-arun-kumar/"
+                href="https://www.linkedin.com/in/arun-kumar-pucha-77aa63293/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={iconLinkClass}

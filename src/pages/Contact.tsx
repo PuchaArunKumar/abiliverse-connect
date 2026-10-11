@@ -149,7 +149,7 @@ const Contact = () => {
                 <h3 className="mb-3 text-sm font-semibold text-foreground">Connect with me</h3>
                 <div className="flex flex-wrap gap-3">
                   <a
-                    href="https://www.linkedin.com/in/pucha-arun-kumar/"
+                    href="https://www.linkedin.com/in/arun-kumar-pucha-77aa63293/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className={socialLinkClass}

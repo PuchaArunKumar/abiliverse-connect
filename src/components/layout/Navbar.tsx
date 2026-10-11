@@ -21,6 +21,7 @@ const navLinks: NavLink[] = [
   { label: "Jobs", href: "/jobs" },
   { label: "Learn", href: "/learn" },
   { label: "Opportunities", href: "/opportunities" },
+  { label: "Radar", href: "/radar" },
   { label: "Connect", href: "/connect" },
   { label: "Companion", href: "/companion", signedInOnly: true },
 ];
