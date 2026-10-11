@@ -20,6 +20,7 @@ const ProblemEdit = lazy(() => import("./pages/ProblemEdit"));
 const Jobs = lazy(() => import("./pages/Jobs"));
 const Learn = lazy(() => import("./pages/Learn"));
 const Opportunities = lazy(() => import("./pages/Opportunities"));
+const Radar = lazy(() => import("./pages/Radar"));
 const Connect = lazy(() => import("./pages/Connect"));
 const Pitches = lazy(() => import("./pages/Pitches"));
 const PitchNew = lazy(() => import("./pages/PitchNew"));
@@ -66,6 +67,7 @@ const App = () => (
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/learn" element={<Learn />} />
           <Route path="/opportunities" element={<Opportunities />} />
+          <Route path="/radar" element={<Radar />} />
           <Route path="/connect" element={<ProtectedRoute><Connect /></ProtectedRoute>} />
           <Route path="/pitches" element={<Pitches />} />
           <Route path="/pitches/new" element={<ProtectedRoute><PitchNew /></ProtectedRoute>} />

@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "updated": "2026-10-11",
+  "next_run": "Mon 12 Oct 2026, 07:53 IST",
+  "items": [
+    {
+      "id": "322c8d9b15",
+      "kind": "job",
+      "title": "Web Accessibility Engineer",
+      "org": "Apple (IS&T Accessibility Center of Excellence)",
+      "url": "https://jobs.apple.com/en-in/details/200680624-0321/web-accessibility-engineer",
+      "location": "Hyderabad, India",
+      "summary": "Entry-level accessibility engineering role in Apple's central accessibility team in Hyderabad: evaluating web apps and recommending fixes.",
+      "tags": [
+        "web accessibility",
+        "entry-level",
+        "India",
+        "Apple"
+      ],
+      "added": "2026-10-11",
+      "source": "Apple Jobs (posted 2026-10-09)"
+    },
+    {
+      "id": "f78f541ab6",
+      "kind": "job",
+      "title": "Front End Web Accessibility Engineer, Retail Engineering",
+      "org": "Apple (Online Store engineering)",
+      "url": "https://jobs.apple.com/en-us/details/200684990/front-end-web-accessibility-engineer-retail-engineering",
+      "location": "Sunnyvale, CA, USA",
+      "summary": "Accessibility specialist for the Apple Online Store (WCAG 2.x, ARIA, React), with AI-assisted accessibility validation a plus.",
+      "tags": [
+        "accessibility",
+        "React",
+        "WCAG",
+        "US on-site"
+      ],
+      "added": "2026-10-11",
+      "source": "Apple Jobs (posted 2026-10-05)"
+    },
+    {
+      "id": "5b888e3cb3",
+      "kind": "event",
+      "title": "ACM ASSETS 2026: 28th International SIGACCESS Conference on Computers and Accessibility",
+      "org": "ACM SIGACCESS",
+      "url": "https://assets26.sigaccess.org/",
+      "location": "Porto, Portugal (virtual attendance available)",
+      "date": "2026-10-25",
+      "date_end": "2026-10-28",
+      "deadline": "2026-10-24",
+      "summary": "ACM's flagship accessibility research conference, in Porto with virtual attendance; regular registration closes 24 October.",
+      "tags": [
+        "accessibility",
+        "assistive-technology",
+        "conference",
+        "virtual"
+      ],
+      "added": "2026-10-11",
+      "source": "assets26.sigaccess.org"
+    },
+    {
+      "id": "fd49af5ee3",
+      "kind": "event",
+      "title": "RESNA 2027 (at Abilities International): Student Design Challenge and Developers' Showcase",
+      "org": "RESNA",
+      "url": "https://www.resna.org/Events/RESNA-2027-Conference/2027-Student-Design-Challenge",
+      "location": "New York Metro (Edison, NJ), USA",
+      "date": "2027-04-29",
+      "date_end": "2027-04-30",
+      "deadline": "2027-01-22",
+      "summary": "RESNA's Student Design Challenge for assistive-technology projects, plus a Developers' Showcase for early-stage AT products, at its 2027 conference in New Jersey.",
+      "tags": [
+        "assistive-technology",
+        "student-competition",
+        "showcase",
+        "Abilitiverse"
+      ],
+      "added": "2026-10-11",
+      "source": "resna.org"
+    },
+    {
+      "id": "2dd9a44bae",
+      "kind": "event",
+      "title": "Zero Project Conference 2027 (#ZeroCon27)",
+      "org": "Zero Project",
+      "url": "https://zeroproject.org/conferences/zero-project-conference-2027",
+      "location": "Vienna, Austria (United Nations Office at Vienna)",
+      "date": "2027-02-10",
+      "date_end": "2027-02-12",
+      "summary": "The Zero Project's annual conference on disability inclusion at the UN in Vienna; the 2027 themes include independent living and assistive technology.",
+      "tags": [
+        "assistive-technology",
+        "accessibility",
+        "conference",
+        "Vienna"
+      ],
+      "added": "2026-10-11",
+      "source": "zeroproject.org"
+    },
+    {
+      "id": "54294cd9ab",
+      "kind": "grant",
+      "title": "Youth Entrepreneurs Challenge (YEC) 2027 - Accessibility theme",
+      "org": "Ministry of Youth Affairs & Sports (MY Bharat portal)",
+      "url": "https://mybharat.gov.in/pages/youth-entrepreneurs-challenge",
+      "location": "India",
+      "deadline": "2026-10-15",
+      "summary": "Government youth-entrepreneur challenge with an Accessibility theme that covers assistive technology; prizes up to Rs 1.5 lakh for founders aged 18-35 with DPIIT or MSME registration. Confirm the closing date on the official page.",
+      "tags": [
+        "government",
+        "youth",
+        "accessibility",
+        "competition"
+      ],
+      "added": "2026-10-11",
+      "source": "mybharat.gov.in YEC 2027 page; StartupGrantsIndia listing (for the close date)"
+    }
+  ]
+}
